@@ -33,9 +33,9 @@ async function main() {
   const gasPriceBid = await bridge.l2Provider.getGasPrice();
 
   const iface = new ethers.utils.Interface([
-      'function sendToArb(address _userToken)'
+    'function exchangeToUserToken(address _user, address _userToken)'
   ]);
-  const data = iface.encodeFunctionData('sendToArb', [usdtAddrArb]);
+  const data = iface.encodeFunctionData('exchangeToUserToken', [signerAddr, usdtAddrArb]);
 
   const y = await nodeInterface.estimateRetryableTicket(
       signerAddr,
