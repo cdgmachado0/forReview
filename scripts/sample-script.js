@@ -13,6 +13,7 @@ async function main() {
   const bridge = await Bridge.init(l1Signer, l2Signer);
   const nodeAddr = '0x00000000000000000000000000000000000000C8';
   const value = ethers.utils.parseEther('0.01');
+  const value2 = ethers.utils.parseEther('0.015');
   const signerAddr = await signer.getAddress();
   const nodeInterface = await hre.ethers.getContractAt('NodeInterface', nodeAddr);
   const usdtAddrArb = '0x3B00Ef435fA4FcFF5C209a37d1f3dcff37c705aD';
@@ -39,18 +40,18 @@ async function main() {
 
   const y = await nodeInterface.estimateRetryableTicket(
       signerAddr,
-      0,
+      value2,
       '0x9be7F57F8524B5c26E564007F14E614e7A0a34ab',
       value,
       maxSubmissionCost,
       '0x9be7F57F8524B5c26E564007F14E614e7A0a34ab',
       '0x9be7F57F8524B5c26E564007F14E614e7A0a34ab',
-      5000000,
+      3000000,
       gasPriceBid,
       data
   );
 
-  console.log('y: ', y);
+  console.log('y: ', (y[0]).toString());
 
 }
 
