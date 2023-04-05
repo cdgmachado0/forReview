@@ -92,7 +92,6 @@ contract EnergyETHFacetTest is Test {
 
         ownerKey = _randomUint256();
         bob = vm.addr(ownerKey);
-        console.log('bob: ', bob);
         
         deal(address(USDC), bob, 5000 * 10 ** 6);
 
