@@ -1,0 +1,67 @@
+<style> code { white-space: pre-wrap; display: block; background-color: #eee; }.executed { background-color: #afa; }.reverted { background-color: #ffa; }.unexecuted { background-color: #faa; }.neutral { background-color: #eee; }</style><b>/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/interfaces/ozIDiamond.sol</b>
+<code>
+  1 |     | <span class='unexecuted'>pragma solidity 0.8.19;</span>
+  2 |     | <span class='neutral'></span>
+  3 |     | <span class='neutral'></span>
+  4 |     | <span class='neutral'></span>
+  5 |     | <span class='neutral'></span>
+  6 |     | <span class='neutral'>interface ozIDiamond {</span>
+  7 |     | <span class='neutral'></span>
+  8 |     | <span class='neutral'>    struct FacetCut {</span>
+  9 |     | <span class='neutral'>        address facetAddress;</span>
+ 10 |     | <span class='neutral'>        FacetCutAction action;</span>
+ 11 |     | <span class='neutral'>        bytes4[] functionSelectors;</span>
+ 12 |     | <span class='neutral'>    }</span>
+ 13 |     | <span class='neutral'></span>
+ 14 |     | <span class='neutral'>    enum FacetCutAction {Add, Replace, Remove}</span>
+ 15 |     | <span class='neutral'></span>
+ 16 |     | <span class='neutral'>    function diamondCut(FacetCut[] memory _diamondCut, address _init, bytes memory _calldata) external;</span>
+ 17 |     | <span class='neutral'>    function getLastPrice() external view returns(uint256);</span>
+ 18 |     | <span class='neutral'>    function getEnergyPrice() external view returns(uint256);</span>
+ 19 |     | <span class='neutral'>    function getOzelIndex() external view returns(uint256);</span>
+ 20 |     | <span class='neutral'></span>
+ 21 |     | <span class='neutral'>}</span>
+
+</code>
+<br />
+
+<b>/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/test/echidna/EchidnaE2E.sol</b>
+<code>
+  1 |     | <span class='neutral'>// SPDX-License-Identifier: GPL-2.0-or-later</span>
+  2 |     | <span class='neutral'>pragma solidity 0.8.19;</span>
+  3 |     | <span class='neutral'></span>
+  4 |     | <span class='neutral'></span>
+  5 |     | <span class='neutral'>import &#39;../../interfaces/ozIDiamond.sol&#39;;</span>
+  6 |     | <span class='neutral'>// import &#39;../../contracts/testing-files/WtiFeed.sol&#39;;</span>
+  7 |     | <span class='neutral'></span>
+  8 | *r  | <span class='executed'></span>
+  9 |     | <span class='neutral'>contract EchidnaE2E {</span>
+ 10 |     | <span class='neutral'></span>
+ 11 |     | <span class='neutral'>    // constructor() {</span>
+ 12 |     | <span class='neutral'>    //     hevm.roll(16771449);</span>
+ 13 |     | <span class='neutral'>    // }</span>
+ 14 |     | <span class='neutral'></span>
+ 15 |     | <span class='unexecuted'>    ozIDiamond OZL = ozIDiamond(0x7D1f13Dd05E6b0673DC3D0BFa14d40A74Cfa3EF2);</span>
+ 16 |     | <span class='neutral'>    // WtiFeed wtiFeed = WtiFeed(0x1dC4c1cEFEF38a777b15aA20260a54E584b16C48);</span>
+ 17 |     | <span class='neutral'></span>
+ 18 |     | <span class='neutral'></span>
+ 19 | *   | <span class='executed'>    function get_price() public view  {</span>
+ 20 |     | <span class='neutral'>        // uint256 price = OZL.getLastPrice();</span>
+ 21 | *   | <span class='executed'>        uint256 price = OZL.getOzelIndex();</span>
+ 22 | *   | <span class='executed'>        assert(price &gt; 0);</span>
+ 23 |     | <span class='neutral'>    }</span>
+ 24 |     | <span class='neutral'></span>
+ 25 |     | <span class='neutral'>    // function get_round_data() public view  {</span>
+ 26 |     | <span class='neutral'>    //     (, int price,,,) = wtiFeed.latestRoundData();</span>
+ 27 |     | <span class='neutral'>    //     assert(price &gt; 0);</span>
+ 28 |     | <span class='neutral'>    // }</span>
+ 29 |     | <span class='neutral'></span>
+ 30 |     | <span class='neutral'>    // function getHello() public pure {</span>
+ 31 |     | <span class='neutral'>    //     assert(true);</span>
+ 32 |     | <span class='neutral'>    // }</span>
+ 33 |     | <span class='neutral'></span>
+ 34 |     | <span class='neutral'>}</span>
+
+</code>
+<br />
+

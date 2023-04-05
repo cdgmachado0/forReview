@@ -1,0 +1,2207 @@
+<style> code { white-space: pre-wrap; display: block; background-color: #eee; }.executed { background-color: #afa; }.reverted { background-color: #ffa; }.unexecuted { background-color: #faa; }.neutral { background-color: #eee; }</style><b>0x5796698A29F3626c9FE13C4d3d3dEE987c84EBB3</b>
+<code>
+    1 |     | <span class='neutral'>// SPDX-License-Identifier: AGPL-3.0</span>
+    2 |     | <span class='neutral'></span>
+    3 |     | <span class='neutral'>pragma solidity 0.6.12;</span>
+    4 |     | <span class='neutral'>pragma experimental ABIEncoderV2;</span>
+    5 |     | <span class='neutral'></span>
+    6 |     | <span class='neutral'>// Global Enums and Structs</span>
+    7 |     | <span class='neutral'></span>
+    8 |     | <span class='neutral'></span>
+    9 |     | <span class='neutral'></span>
+   10 |     | <span class='neutral'>struct StrategyParams {</span>
+   11 |     | <span class='neutral'>    uint256 performanceFee;</span>
+   12 |     | <span class='neutral'>    uint256 activation;</span>
+   13 |     | <span class='neutral'>    uint256 debtRatio;</span>
+   14 |     | <span class='neutral'>    uint256 minDebtPerHarvest;</span>
+   15 |     | <span class='neutral'>    uint256 maxDebtPerHarvest;</span>
+   16 |     | <span class='neutral'>    uint256 lastReport;</span>
+   17 |     | <span class='neutral'>    uint256 totalDebt;</span>
+   18 |     | <span class='neutral'>    uint256 totalGain;</span>
+   19 |     | <span class='neutral'>    uint256 totalLoss;</span>
+   20 |     | <span class='neutral'>}</span>
+   21 |     | <span class='neutral'></span>
+   22 |     | <span class='neutral'>// Part: IBaseFee</span>
+   23 |     | <span class='neutral'></span>
+   24 |     | <span class='neutral'>interface IBaseFee {</span>
+   25 |     | <span class='neutral'>    function basefee_global() external view returns (uint256);</span>
+   26 |     | <span class='neutral'>}</span>
+   27 |     | <span class='neutral'></span>
+   28 |     | <span class='neutral'>// Part: IConvexDeposit</span>
+   29 |     | <span class='neutral'></span>
+   30 |     | <span class='neutral'>interface IConvexDeposit {</span>
+   31 |     | <span class='neutral'>    // deposit into convex, receive a tokenized deposit.  parameter to stake immediately (we always do this).</span>
+   32 |     | <span class='neutral'>    function deposit(</span>
+   33 |     | <span class='neutral'>        uint256 _pid,</span>
+   34 |     | <span class='neutral'>        uint256 _amount,</span>
+   35 |     | <span class='neutral'>        bool _stake</span>
+   36 |     | <span class='neutral'>    ) external returns (bool);</span>
+   37 |     | <span class='neutral'></span>
+   38 |     | <span class='neutral'>    // burn a tokenized deposit (Convex deposit tokens) to receive curve lp tokens back</span>
+   39 |     | <span class='neutral'>    function withdraw(uint256 _pid, uint256 _amount) external returns (bool);</span>
+   40 |     | <span class='neutral'></span>
+   41 |     | <span class='neutral'>    // give us info about a pool based on its pid</span>
+   42 |     | <span class='neutral'>    function poolInfo(uint256)</span>
+   43 |     | <span class='neutral'>        external</span>
+   44 |     | <span class='neutral'>        view</span>
+   45 |     | <span class='neutral'>        returns (</span>
+   46 |     | <span class='neutral'>            address,</span>
+   47 |     | <span class='neutral'>            address,</span>
+   48 |     | <span class='neutral'>            address,</span>
+   49 |     | <span class='neutral'>            address,</span>
+   50 |     | <span class='neutral'>            address,</span>
+   51 |     | <span class='neutral'>            bool</span>
+   52 |     | <span class='neutral'>        );</span>
+   53 |     | <span class='neutral'>}</span>
+   54 |     | <span class='neutral'></span>
+   55 |     | <span class='neutral'>// Part: IConvexRewards</span>
+   56 |     | <span class='neutral'></span>
+   57 |     | <span class='neutral'>interface IConvexRewards {</span>
+   58 |     | <span class='neutral'>    // strategy&#39;s staked balance in the synthetix staking contract</span>
+   59 |     | <span class='neutral'>    function balanceOf(address account) external view returns (uint256);</span>
+   60 |     | <span class='neutral'></span>
+   61 |     | <span class='neutral'>    // read how much claimable CRV a strategy has</span>
+   62 |     | <span class='neutral'>    function earned(address account) external view returns (uint256);</span>
+   63 |     | <span class='neutral'></span>
+   64 |     | <span class='neutral'>    // stake a convex tokenized deposit</span>
+   65 |     | <span class='neutral'>    function stake(uint256 _amount) external returns (bool);</span>
+   66 |     | <span class='neutral'></span>
+   67 |     | <span class='neutral'>    // withdraw to a convex tokenized deposit, probably never need to use this</span>
+   68 |     | <span class='neutral'>    function withdraw(uint256 _amount, bool _claim) external returns (bool);</span>
+   69 |     | <span class='neutral'></span>
+   70 |     | <span class='neutral'>    // withdraw directly to curve LP token, this is what we primarily use</span>
+   71 |     | <span class='neutral'>    function withdrawAndUnwrap(uint256 _amount, bool _claim)</span>
+   72 |     | <span class='neutral'>        external</span>
+   73 |     | <span class='neutral'>        returns (bool);</span>
+   74 |     | <span class='neutral'></span>
+   75 |     | <span class='neutral'>    // claim rewards, with an option to claim extra rewards or not</span>
+   76 |     | <span class='neutral'>    function getReward(address _account, bool _claimExtras)</span>
+   77 |     | <span class='neutral'>        external</span>
+   78 |     | <span class='neutral'>        returns (bool);</span>
+   79 |     | <span class='neutral'>}</span>
+   80 |     | <span class='neutral'></span>
+   81 |     | <span class='neutral'>// Part: ICurveFi</span>
+   82 |     | <span class='neutral'></span>
+   83 |     | <span class='neutral'>interface ICurveFi {</span>
+   84 |     | <span class='neutral'>    function get_virtual_price() external view returns (uint256);</span>
+   85 |     | <span class='neutral'></span>
+   86 |     | <span class='neutral'>    function add_liquidity(</span>
+   87 |     | <span class='neutral'>        // Iron bank pool</span>
+   88 |     | <span class='neutral'>        uint256[2] calldata amounts,</span>
+   89 |     | <span class='neutral'>        uint256 min_mint_amount</span>
+   90 |     | <span class='neutral'>    ) external payable;</span>
+   91 |     | <span class='neutral'></span>
+   92 |     | <span class='neutral'>    function remove_liquidity_imbalance(</span>
+   93 |     | <span class='neutral'>        uint256[2] calldata amounts,</span>
+   94 |     | <span class='neutral'>        uint256 max_burn_amount</span>
+   95 |     | <span class='neutral'>    ) external;</span>
+   96 |     | <span class='neutral'></span>
+   97 |     | <span class='neutral'>    function remove_liquidity(uint256 _amount, uint256[2] calldata amounts)</span>
+   98 |     | <span class='neutral'>        external;</span>
+   99 |     | <span class='neutral'></span>
+  100 |     | <span class='neutral'>    function remove_liquidity_one_coin(</span>
+  101 |     | <span class='neutral'>        uint256 _token_amount,</span>
+  102 |     | <span class='neutral'>        int128 i,</span>
+  103 |     | <span class='neutral'>        uint256 min_amount</span>
+  104 |     | <span class='neutral'>    ) external;</span>
+  105 |     | <span class='neutral'></span>
+  106 |     | <span class='neutral'>    function exchange(</span>
+  107 |     | <span class='neutral'>        int128 from,</span>
+  108 |     | <span class='neutral'>        int128 to,</span>
+  109 |     | <span class='neutral'>        uint256 _from_amount,</span>
+  110 |     | <span class='neutral'>        uint256 _min_to_amount</span>
+  111 |     | <span class='neutral'>    ) external;</span>
+  112 |     | <span class='neutral'></span>
+  113 |     | <span class='neutral'>    function balances(uint256) external view returns (uint256);</span>
+  114 |     | <span class='neutral'></span>
+  115 |     | <span class='neutral'>    function get_dy(</span>
+  116 |     | <span class='neutral'>        int128 from,</span>
+  117 |     | <span class='neutral'>        int128 to,</span>
+  118 |     | <span class='neutral'>        uint256 _from_amount</span>
+  119 |     | <span class='neutral'>    ) external view returns (uint256);</span>
+  120 |     | <span class='neutral'></span>
+  121 |     | <span class='neutral'>    function calc_token_amount(uint256[2] calldata amounts, bool _is_deposit)</span>
+  122 |     | <span class='neutral'>        external</span>
+  123 |     | <span class='neutral'>        view</span>
+  124 |     | <span class='neutral'>        returns (uint256);</span>
+  125 |     | <span class='neutral'></span>
+  126 |     | <span class='neutral'>    function calc_withdraw_one_coin(uint256 amount, int128 i)</span>
+  127 |     | <span class='neutral'>        external</span>
+  128 |     | <span class='neutral'>        view</span>
+  129 |     | <span class='neutral'>        returns (uint256);</span>
+  130 |     | <span class='neutral'>}</span>
+  131 |     | <span class='neutral'></span>
+  132 |     | <span class='neutral'>// Part: IOracle</span>
+  133 |     | <span class='neutral'></span>
+  134 |     | <span class='neutral'>interface IOracle {</span>
+  135 |     | <span class='neutral'>    function ethToAsset(</span>
+  136 |     | <span class='neutral'>        uint256 _ethAmountIn,</span>
+  137 |     | <span class='neutral'>        address _tokenOut,</span>
+  138 |     | <span class='neutral'>        uint32 _twapPeriod</span>
+  139 |     | <span class='neutral'>    ) external view returns (uint256 amountOut);</span>
+  140 |     | <span class='neutral'>}</span>
+  141 |     | <span class='neutral'></span>
+  142 |     | <span class='neutral'>// Part: IUniV3</span>
+  143 |     | <span class='neutral'></span>
+  144 |     | <span class='neutral'>interface IUniV3 {</span>
+  145 |     | <span class='neutral'>    struct ExactInputParams {</span>
+  146 |     | <span class='neutral'>        bytes path;</span>
+  147 |     | <span class='neutral'>        address recipient;</span>
+  148 |     | <span class='neutral'>        uint256 deadline;</span>
+  149 |     | <span class='neutral'>        uint256 amountIn;</span>
+  150 |     | <span class='neutral'>        uint256 amountOutMinimum;</span>
+  151 |     | <span class='neutral'>    }</span>
+  152 |     | <span class='neutral'></span>
+  153 |     | <span class='neutral'>    function exactInput(ExactInputParams calldata params)</span>
+  154 |     | <span class='neutral'>        external</span>
+  155 |     | <span class='neutral'>        payable</span>
+  156 |     | <span class='neutral'>        returns (uint256 amountOut);</span>
+  157 |     | <span class='neutral'>}</span>
+  158 |     | <span class='neutral'></span>
+  159 |     | <span class='neutral'>// Part: IUniswapV2Router01</span>
+  160 |     | <span class='neutral'></span>
+  161 |     | <span class='neutral'>interface IUniswapV2Router01 {</span>
+  162 |     | <span class='neutral'>    function factory() external pure returns (address);</span>
+  163 |     | <span class='neutral'></span>
+  164 |     | <span class='neutral'>    function WETH() external pure returns (address);</span>
+  165 |     | <span class='neutral'></span>
+  166 |     | <span class='neutral'>    function addLiquidity(</span>
+  167 |     | <span class='neutral'>        address tokenA,</span>
+  168 |     | <span class='neutral'>        address tokenB,</span>
+  169 |     | <span class='neutral'>        uint256 amountADesired,</span>
+  170 |     | <span class='neutral'>        uint256 amountBDesired,</span>
+  171 |     | <span class='neutral'>        uint256 amountAMin,</span>
+  172 |     | <span class='neutral'>        uint256 amountBMin,</span>
+  173 |     | <span class='neutral'>        address to,</span>
+  174 |     | <span class='neutral'>        uint256 deadline</span>
+  175 |     | <span class='neutral'>    )</span>
+  176 |     | <span class='neutral'>        external</span>
+  177 |     | <span class='neutral'>        returns (</span>
+  178 |     | <span class='neutral'>            uint256 amountA,</span>
+  179 |     | <span class='neutral'>            uint256 amountB,</span>
+  180 |     | <span class='neutral'>            uint256 liquidity</span>
+  181 |     | <span class='neutral'>        );</span>
+  182 |     | <span class='neutral'></span>
+  183 |     | <span class='neutral'>    function addLiquidityETH(</span>
+  184 |     | <span class='neutral'>        address token,</span>
+  185 |     | <span class='neutral'>        uint256 amountTokenDesired,</span>
+  186 |     | <span class='neutral'>        uint256 amountTokenMin,</span>
+  187 |     | <span class='neutral'>        uint256 amountETHMin,</span>
+  188 |     | <span class='neutral'>        address to,</span>
+  189 |     | <span class='neutral'>        uint256 deadline</span>
+  190 |     | <span class='neutral'>    )</span>
+  191 |     | <span class='neutral'>        external</span>
+  192 |     | <span class='neutral'>        payable</span>
+  193 |     | <span class='neutral'>        returns (</span>
+  194 |     | <span class='neutral'>            uint256 amountToken,</span>
+  195 |     | <span class='neutral'>            uint256 amountETH,</span>
+  196 |     | <span class='neutral'>            uint256 liquidity</span>
+  197 |     | <span class='neutral'>        );</span>
+  198 |     | <span class='neutral'></span>
+  199 |     | <span class='neutral'>    function removeLiquidity(</span>
+  200 |     | <span class='neutral'>        address tokenA,</span>
+  201 |     | <span class='neutral'>        address tokenB,</span>
+  202 |     | <span class='neutral'>        uint256 liquidity,</span>
+  203 |     | <span class='neutral'>        uint256 amountAMin,</span>
+  204 |     | <span class='neutral'>        uint256 amountBMin,</span>
+  205 |     | <span class='neutral'>        address to,</span>
+  206 |     | <span class='neutral'>        uint256 deadline</span>
+  207 |     | <span class='neutral'>    ) external returns (uint256 amountA, uint256 amountB);</span>
+  208 |     | <span class='neutral'></span>
+  209 |     | <span class='neutral'>    function removeLiquidityETH(</span>
+  210 |     | <span class='neutral'>        address token,</span>
+  211 |     | <span class='neutral'>        uint256 liquidity,</span>
+  212 |     | <span class='neutral'>        uint256 amountTokenMin,</span>
+  213 |     | <span class='neutral'>        uint256 amountETHMin,</span>
+  214 |     | <span class='neutral'>        address to,</span>
+  215 |     | <span class='neutral'>        uint256 deadline</span>
+  216 |     | <span class='neutral'>    ) external returns (uint256 amountToken, uint256 amountETH);</span>
+  217 |     | <span class='neutral'></span>
+  218 |     | <span class='neutral'>    function removeLiquidityWithPermit(</span>
+  219 |     | <span class='neutral'>        address tokenA,</span>
+  220 |     | <span class='neutral'>        address tokenB,</span>
+  221 |     | <span class='neutral'>        uint256 liquidity,</span>
+  222 |     | <span class='neutral'>        uint256 amountAMin,</span>
+  223 |     | <span class='neutral'>        uint256 amountBMin,</span>
+  224 |     | <span class='neutral'>        address to,</span>
+  225 |     | <span class='neutral'>        uint256 deadline,</span>
+  226 |     | <span class='neutral'>        bool approveMax,</span>
+  227 |     | <span class='neutral'>        uint8 v,</span>
+  228 |     | <span class='neutral'>        bytes32 r,</span>
+  229 |     | <span class='neutral'>        bytes32 s</span>
+  230 |     | <span class='neutral'>    ) external returns (uint256 amountA, uint256 amountB);</span>
+  231 |     | <span class='neutral'></span>
+  232 |     | <span class='neutral'>    function removeLiquidityETHWithPermit(</span>
+  233 |     | <span class='neutral'>        address token,</span>
+  234 |     | <span class='neutral'>        uint256 liquidity,</span>
+  235 |     | <span class='neutral'>        uint256 amountTokenMin,</span>
+  236 |     | <span class='neutral'>        uint256 amountETHMin,</span>
+  237 |     | <span class='neutral'>        address to,</span>
+  238 |     | <span class='neutral'>        uint256 deadline,</span>
+  239 |     | <span class='neutral'>        bool approveMax,</span>
+  240 |     | <span class='neutral'>        uint8 v,</span>
+  241 |     | <span class='neutral'>        bytes32 r,</span>
+  242 |     | <span class='neutral'>        bytes32 s</span>
+  243 |     | <span class='neutral'>    ) external returns (uint256 amountToken, uint256 amountETH);</span>
+  244 |     | <span class='neutral'></span>
+  245 |     | <span class='neutral'>    function swapExactTokensForTokens(</span>
+  246 |     | <span class='neutral'>        uint256 amountIn,</span>
+  247 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  248 |     | <span class='neutral'>        address[] calldata path,</span>
+  249 |     | <span class='neutral'>        address to,</span>
+  250 |     | <span class='neutral'>        uint256 deadline</span>
+  251 |     | <span class='neutral'>    ) external returns (uint256[] memory amounts);</span>
+  252 |     | <span class='neutral'></span>
+  253 |     | <span class='neutral'>    function swapTokensForExactTokens(</span>
+  254 |     | <span class='neutral'>        uint256 amountOut,</span>
+  255 |     | <span class='neutral'>        uint256 amountInMax,</span>
+  256 |     | <span class='neutral'>        address[] calldata path,</span>
+  257 |     | <span class='neutral'>        address to,</span>
+  258 |     | <span class='neutral'>        uint256 deadline</span>
+  259 |     | <span class='neutral'>    ) external returns (uint256[] memory amounts);</span>
+  260 |     | <span class='neutral'></span>
+  261 |     | <span class='neutral'>    function swapExactETHForTokens(</span>
+  262 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  263 |     | <span class='neutral'>        address[] calldata path,</span>
+  264 |     | <span class='neutral'>        address to,</span>
+  265 |     | <span class='neutral'>        uint256 deadline</span>
+  266 |     | <span class='neutral'>    ) external payable returns (uint256[] memory amounts);</span>
+  267 |     | <span class='neutral'></span>
+  268 |     | <span class='neutral'>    function swapTokensForExactETH(</span>
+  269 |     | <span class='neutral'>        uint256 amountOut,</span>
+  270 |     | <span class='neutral'>        uint256 amountInMax,</span>
+  271 |     | <span class='neutral'>        address[] calldata path,</span>
+  272 |     | <span class='neutral'>        address to,</span>
+  273 |     | <span class='neutral'>        uint256 deadline</span>
+  274 |     | <span class='neutral'>    ) external returns (uint256[] memory amounts);</span>
+  275 |     | <span class='neutral'></span>
+  276 |     | <span class='neutral'>    function swapExactTokensForETH(</span>
+  277 |     | <span class='neutral'>        uint256 amountIn,</span>
+  278 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  279 |     | <span class='neutral'>        address[] calldata path,</span>
+  280 |     | <span class='neutral'>        address to,</span>
+  281 |     | <span class='neutral'>        uint256 deadline</span>
+  282 |     | <span class='neutral'>    ) external returns (uint256[] memory amounts);</span>
+  283 |     | <span class='neutral'></span>
+  284 |     | <span class='neutral'>    function swapETHForExactTokens(</span>
+  285 |     | <span class='neutral'>        uint256 amountOut,</span>
+  286 |     | <span class='neutral'>        address[] calldata path,</span>
+  287 |     | <span class='neutral'>        address to,</span>
+  288 |     | <span class='neutral'>        uint256 deadline</span>
+  289 |     | <span class='neutral'>    ) external payable returns (uint256[] memory amounts);</span>
+  290 |     | <span class='neutral'></span>
+  291 |     | <span class='neutral'>    function quote(</span>
+  292 |     | <span class='neutral'>        uint256 amountA,</span>
+  293 |     | <span class='neutral'>        uint256 reserveA,</span>
+  294 |     | <span class='neutral'>        uint256 reserveB</span>
+  295 |     | <span class='neutral'>    ) external pure returns (uint256 amountB);</span>
+  296 |     | <span class='neutral'></span>
+  297 |     | <span class='neutral'>    function getAmountOut(</span>
+  298 |     | <span class='neutral'>        uint256 amountIn,</span>
+  299 |     | <span class='neutral'>        uint256 reserveIn,</span>
+  300 |     | <span class='neutral'>        uint256 reserveOut</span>
+  301 |     | <span class='neutral'>    ) external pure returns (uint256 amountOut);</span>
+  302 |     | <span class='neutral'></span>
+  303 |     | <span class='neutral'>    function getAmountIn(</span>
+  304 |     | <span class='neutral'>        uint256 amountOut,</span>
+  305 |     | <span class='neutral'>        uint256 reserveIn,</span>
+  306 |     | <span class='neutral'>        uint256 reserveOut</span>
+  307 |     | <span class='neutral'>    ) external pure returns (uint256 amountIn);</span>
+  308 |     | <span class='neutral'></span>
+  309 |     | <span class='neutral'>    function getAmountsOut(uint256 amountIn, address[] calldata path)</span>
+  310 |     | <span class='neutral'>        external</span>
+  311 |     | <span class='neutral'>        view</span>
+  312 |     | <span class='neutral'>        returns (uint256[] memory amounts);</span>
+  313 |     | <span class='neutral'></span>
+  314 |     | <span class='neutral'>    function getAmountsIn(uint256 amountOut, address[] calldata path)</span>
+  315 |     | <span class='neutral'>        external</span>
+  316 |     | <span class='neutral'>        view</span>
+  317 |     | <span class='neutral'>        returns (uint256[] memory amounts);</span>
+  318 |     | <span class='neutral'>}</span>
+  319 |     | <span class='neutral'></span>
+  320 |     | <span class='neutral'>// Part: OpenZeppelin/openzeppelin-contracts@3.1.0/Address</span>
+  321 |     | <span class='neutral'></span>
+  322 |     | <span class='neutral'>/**</span>
+  323 |     | <span class='neutral'> * @dev Collection of functions related to the address type</span>
+  324 |     | <span class='neutral'> */</span>
+  325 |     | <span class='neutral'>library Address {</span>
+  326 |     | <span class='neutral'>    /**</span>
+  327 |     | <span class='neutral'>     * @dev Returns true if `account` is a contract.</span>
+  328 |     | <span class='neutral'>     *</span>
+  329 |     | <span class='neutral'>     * [IMPORTANT]</span>
+  330 |     | <span class='neutral'>     * ====</span>
+  331 |     | <span class='neutral'>     * It is unsafe to assume that an address for which this function returns</span>
+  332 |     | <span class='neutral'>     * false is an externally-owned account (EOA) and not a contract.</span>
+  333 |     | <span class='neutral'>     *</span>
+  334 |     | <span class='neutral'>     * Among others, `isContract` will return false for the following</span>
+  335 |     | <span class='neutral'>     * types of addresses:</span>
+  336 |     | <span class='neutral'>     *</span>
+  337 |     | <span class='neutral'>     *  - an externally-owned account</span>
+  338 |     | <span class='neutral'>     *  - a contract in construction</span>
+  339 |     | <span class='neutral'>     *  - an address where a contract will be created</span>
+  340 |     | <span class='neutral'>     *  - an address where a contract lived, but was destroyed</span>
+  341 |     | <span class='neutral'>     * ====</span>
+  342 |     | <span class='neutral'>     */</span>
+  343 |     | <span class='unexecuted'>    function isContract(address account) internal view returns (bool) {</span>
+  344 |     | <span class='neutral'>        // According to EIP-1052, 0x0 is the value returned for not-yet created accounts</span>
+  345 |     | <span class='neutral'>        // and 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 is returned</span>
+  346 |     | <span class='neutral'>        // for accounts without code, i.e. `keccak256(&#39;&#39;)`</span>
+  347 |     | <span class='neutral'>        bytes32 codehash;</span>
+  348 |     | <span class='unexecuted'>        bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;</span>
+  349 |     | <span class='neutral'>        // solhint-disable-next-line no-inline-assembly</span>
+  350 |     | <span class='unexecuted'>        assembly { codehash := extcodehash(account) }</span>
+  351 |     | <span class='unexecuted'>        return (codehash != accountHash &amp;&amp; codehash != 0x0);</span>
+  352 |     | <span class='neutral'>    }</span>
+  353 |     | <span class='neutral'></span>
+  354 |     | <span class='neutral'>    /**</span>
+  355 |     | <span class='neutral'>     * @dev Replacement for Solidity&#39;s `transfer`: sends `amount` wei to</span>
+  356 |     | <span class='neutral'>     * `recipient`, forwarding all available gas and reverting on errors.</span>
+  357 |     | <span class='neutral'>     *</span>
+  358 |     | <span class='neutral'>     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost</span>
+  359 |     | <span class='neutral'>     * of certain opcodes, possibly making contracts go over the 2300 gas limit</span>
+  360 |     | <span class='neutral'>     * imposed by `transfer`, making them unable to receive funds via</span>
+  361 |     | <span class='neutral'>     * `transfer`. {sendValue} removes this limitation.</span>
+  362 |     | <span class='neutral'>     *</span>
+  363 |     | <span class='neutral'>     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].</span>
+  364 |     | <span class='neutral'>     *</span>
+  365 |     | <span class='neutral'>     * IMPORTANT: because control is transferred to `recipient`, care must be</span>
+  366 |     | <span class='neutral'>     * taken to not create reentrancy vulnerabilities. Consider using</span>
+  367 |     | <span class='neutral'>     * {ReentrancyGuard} or the</span>
+  368 |     | <span class='neutral'>     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].</span>
+  369 |     | <span class='neutral'>     */</span>
+  370 |     | <span class='neutral'>    function sendValue(address payable recipient, uint256 amount) internal {</span>
+  371 |     | <span class='neutral'>        require(address(this).balance &gt;= amount, &quot;Address: insufficient balance&quot;);</span>
+  372 |     | <span class='neutral'></span>
+  373 |     | <span class='neutral'>        // solhint-disable-next-line avoid-low-level-calls, avoid-call-value</span>
+  374 |     | <span class='neutral'>        (bool success, ) = recipient.call{ value: amount }(&quot;&quot;);</span>
+  375 |     | <span class='neutral'>        require(success, &quot;Address: unable to send value, recipient may have reverted&quot;);</span>
+  376 |     | <span class='neutral'>    }</span>
+  377 |     | <span class='neutral'></span>
+  378 |     | <span class='neutral'>    /**</span>
+  379 |     | <span class='neutral'>     * @dev Performs a Solidity function call using a low level `call`. A</span>
+  380 |     | <span class='neutral'>     * plain`call` is an unsafe replacement for a function call: use this</span>
+  381 |     | <span class='neutral'>     * function instead.</span>
+  382 |     | <span class='neutral'>     *</span>
+  383 |     | <span class='neutral'>     * If `target` reverts with a revert reason, it is bubbled up by this</span>
+  384 |     | <span class='neutral'>     * function (like regular Solidity function calls).</span>
+  385 |     | <span class='neutral'>     *</span>
+  386 |     | <span class='neutral'>     * Returns the raw returned data. To convert to the expected return value,</span>
+  387 |     | <span class='neutral'>     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].</span>
+  388 |     | <span class='neutral'>     *</span>
+  389 |     | <span class='neutral'>     * Requirements:</span>
+  390 |     | <span class='neutral'>     *</span>
+  391 |     | <span class='neutral'>     * - `target` must be a contract.</span>
+  392 |     | <span class='neutral'>     * - calling `target` with `data` must not revert.</span>
+  393 |     | <span class='neutral'>     *</span>
+  394 |     | <span class='neutral'>     * _Available since v3.1._</span>
+  395 |     | <span class='neutral'>     */</span>
+  396 |     | <span class='neutral'>    function functionCall(address target, bytes memory data) internal returns (bytes memory) {</span>
+  397 |     | <span class='neutral'>      return functionCall(target, data, &quot;Address: low-level call failed&quot;);</span>
+  398 |     | <span class='neutral'>    }</span>
+  399 |     | <span class='neutral'></span>
+  400 |     | <span class='neutral'>    /**</span>
+  401 |     | <span class='neutral'>     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with</span>
+  402 |     | <span class='neutral'>     * `errorMessage` as a fallback revert reason when `target` reverts.</span>
+  403 |     | <span class='neutral'>     *</span>
+  404 |     | <span class='neutral'>     * _Available since v3.1._</span>
+  405 |     | <span class='neutral'>     */</span>
+  406 |     | <span class='unexecuted'>    function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {</span>
+  407 |     | <span class='unexecuted'>        return _functionCallWithValue(target, data, 0, errorMessage);</span>
+  408 |     | <span class='neutral'>    }</span>
+  409 |     | <span class='neutral'></span>
+  410 |     | <span class='neutral'>    /**</span>
+  411 |     | <span class='neutral'>     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],</span>
+  412 |     | <span class='neutral'>     * but also transferring `value` wei to `target`.</span>
+  413 |     | <span class='neutral'>     *</span>
+  414 |     | <span class='neutral'>     * Requirements:</span>
+  415 |     | <span class='neutral'>     *</span>
+  416 |     | <span class='neutral'>     * - the calling contract must have an ETH balance of at least `value`.</span>
+  417 |     | <span class='neutral'>     * - the called Solidity function must be `payable`.</span>
+  418 |     | <span class='neutral'>     *</span>
+  419 |     | <span class='neutral'>     * _Available since v3.1._</span>
+  420 |     | <span class='neutral'>     */</span>
+  421 |     | <span class='neutral'>    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {</span>
+  422 |     | <span class='neutral'>        return functionCallWithValue(target, data, value, &quot;Address: low-level call with value failed&quot;);</span>
+  423 |     | <span class='neutral'>    }</span>
+  424 |     | <span class='neutral'></span>
+  425 |     | <span class='neutral'>    /**</span>
+  426 |     | <span class='neutral'>     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but</span>
+  427 |     | <span class='neutral'>     * with `errorMessage` as a fallback revert reason when `target` reverts.</span>
+  428 |     | <span class='neutral'>     *</span>
+  429 |     | <span class='neutral'>     * _Available since v3.1._</span>
+  430 |     | <span class='neutral'>     */</span>
+  431 |     | <span class='neutral'>    function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {</span>
+  432 |     | <span class='neutral'>        require(address(this).balance &gt;= value, &quot;Address: insufficient balance for call&quot;);</span>
+  433 |     | <span class='neutral'>        return _functionCallWithValue(target, data, value, errorMessage);</span>
+  434 |     | <span class='neutral'>    }</span>
+  435 |     | <span class='neutral'></span>
+  436 |     | <span class='unexecuted'>    function _functionCallWithValue(address target, bytes memory data, uint256 weiValue, string memory errorMessage) private returns (bytes memory) {</span>
+  437 |     | <span class='unexecuted'>        require(isContract(target), &quot;Address: call to non-contract&quot;);</span>
+  438 |     | <span class='neutral'></span>
+  439 |     | <span class='neutral'>        // solhint-disable-next-line avoid-low-level-calls</span>
+  440 |     | <span class='unexecuted'>        (bool success, bytes memory returndata) = target.call{ value: weiValue }(data);</span>
+  441 |     | <span class='unexecuted'>        if (success) {</span>
+  442 |     | <span class='unexecuted'>            return returndata;</span>
+  443 |     | <span class='neutral'>        } else {</span>
+  444 |     | <span class='neutral'>            // Look for revert reason and bubble it up if present</span>
+  445 |     | <span class='unexecuted'>            if (returndata.length &gt; 0) {</span>
+  446 |     | <span class='neutral'>                // The easiest way to bubble the revert reason is using memory via assembly</span>
+  447 |     | <span class='neutral'></span>
+  448 |     | <span class='neutral'>                // solhint-disable-next-line no-inline-assembly</span>
+  449 |     | <span class='unexecuted'>                assembly {</span>
+  450 |     | <span class='unexecuted'>                    let returndata_size := mload(returndata)</span>
+  451 |     | <span class='unexecuted'>                    revert(add(32, returndata), returndata_size)</span>
+  452 |     | <span class='neutral'>                }</span>
+  453 |     | <span class='neutral'>            } else {</span>
+  454 |     | <span class='unexecuted'>                revert(errorMessage);</span>
+  455 |     | <span class='neutral'>            }</span>
+  456 |     | <span class='neutral'>        }</span>
+  457 |     | <span class='neutral'>    }</span>
+  458 |     | <span class='neutral'>}</span>
+  459 |     | <span class='neutral'></span>
+  460 |     | <span class='neutral'>// Part: OpenZeppelin/openzeppelin-contracts@3.1.0/IERC20</span>
+  461 |     | <span class='neutral'></span>
+  462 |     | <span class='neutral'>/**</span>
+  463 |     | <span class='neutral'> * @dev Interface of the ERC20 standard as defined in the EIP.</span>
+  464 |     | <span class='neutral'> */</span>
+  465 |     | <span class='neutral'>interface IERC20 {</span>
+  466 |     | <span class='neutral'>    /**</span>
+  467 |     | <span class='neutral'>     * @dev Returns the amount of tokens in existence.</span>
+  468 |     | <span class='neutral'>     */</span>
+  469 |     | <span class='neutral'>    function totalSupply() external view returns (uint256);</span>
+  470 |     | <span class='neutral'></span>
+  471 |     | <span class='neutral'>    /**</span>
+  472 |     | <span class='neutral'>     * @dev Returns the amount of tokens owned by `account`.</span>
+  473 |     | <span class='neutral'>     */</span>
+  474 |     | <span class='neutral'>    function balanceOf(address account) external view returns (uint256);</span>
+  475 |     | <span class='neutral'></span>
+  476 |     | <span class='neutral'>    /**</span>
+  477 |     | <span class='neutral'>     * @dev Moves `amount` tokens from the caller&#39;s account to `recipient`.</span>
+  478 |     | <span class='neutral'>     *</span>
+  479 |     | <span class='neutral'>     * Returns a boolean value indicating whether the operation succeeded.</span>
+  480 |     | <span class='neutral'>     *</span>
+  481 |     | <span class='neutral'>     * Emits a {Transfer} event.</span>
+  482 |     | <span class='neutral'>     */</span>
+  483 |     | <span class='neutral'>    function transfer(address recipient, uint256 amount) external returns (bool);</span>
+  484 |     | <span class='neutral'></span>
+  485 |     | <span class='neutral'>    /**</span>
+  486 |     | <span class='neutral'>     * @dev Returns the remaining number of tokens that `spender` will be</span>
+  487 |     | <span class='neutral'>     * allowed to spend on behalf of `owner` through {transferFrom}. This is</span>
+  488 |     | <span class='neutral'>     * zero by default.</span>
+  489 |     | <span class='neutral'>     *</span>
+  490 |     | <span class='neutral'>     * This value changes when {approve} or {transferFrom} are called.</span>
+  491 |     | <span class='neutral'>     */</span>
+  492 |     | <span class='neutral'>    function allowance(address owner, address spender) external view returns (uint256);</span>
+  493 |     | <span class='neutral'></span>
+  494 |     | <span class='neutral'>    /**</span>
+  495 |     | <span class='neutral'>     * @dev Sets `amount` as the allowance of `spender` over the caller&#39;s tokens.</span>
+  496 |     | <span class='neutral'>     *</span>
+  497 |     | <span class='neutral'>     * Returns a boolean value indicating whether the operation succeeded.</span>
+  498 |     | <span class='neutral'>     *</span>
+  499 |     | <span class='neutral'>     * IMPORTANT: Beware that changing an allowance with this method brings the risk</span>
+  500 |     | <span class='neutral'>     * that someone may use both the old and the new allowance by unfortunate</span>
+  501 |     | <span class='neutral'>     * transaction ordering. One possible solution to mitigate this race</span>
+  502 |     | <span class='neutral'>     * condition is to first reduce the spender&#39;s allowance to 0 and set the</span>
+  503 |     | <span class='neutral'>     * desired value afterwards:</span>
+  504 |     | <span class='neutral'>     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729</span>
+  505 |     | <span class='neutral'>     *</span>
+  506 |     | <span class='neutral'>     * Emits an {Approval} event.</span>
+  507 |     | <span class='neutral'>     */</span>
+  508 |     | <span class='neutral'>    function approve(address spender, uint256 amount) external returns (bool);</span>
+  509 |     | <span class='neutral'></span>
+  510 |     | <span class='neutral'>    /**</span>
+  511 |     | <span class='neutral'>     * @dev Moves `amount` tokens from `sender` to `recipient` using the</span>
+  512 |     | <span class='neutral'>     * allowance mechanism. `amount` is then deducted from the caller&#39;s</span>
+  513 |     | <span class='neutral'>     * allowance.</span>
+  514 |     | <span class='neutral'>     *</span>
+  515 |     | <span class='neutral'>     * Returns a boolean value indicating whether the operation succeeded.</span>
+  516 |     | <span class='neutral'>     *</span>
+  517 |     | <span class='neutral'>     * Emits a {Transfer} event.</span>
+  518 |     | <span class='neutral'>     */</span>
+  519 |     | <span class='neutral'>    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);</span>
+  520 |     | <span class='neutral'></span>
+  521 |     | <span class='neutral'>    /**</span>
+  522 |     | <span class='neutral'>     * @dev Emitted when `value` tokens are moved from one account (`from`) to</span>
+  523 |     | <span class='neutral'>     * another (`to`).</span>
+  524 |     | <span class='neutral'>     *</span>
+  525 |     | <span class='neutral'>     * Note that `value` may be zero.</span>
+  526 |     | <span class='neutral'>     */</span>
+  527 |     | <span class='neutral'>    event Transfer(address indexed from, address indexed to, uint256 value);</span>
+  528 |     | <span class='neutral'></span>
+  529 |     | <span class='neutral'>    /**</span>
+  530 |     | <span class='neutral'>     * @dev Emitted when the allowance of a `spender` for an `owner` is set by</span>
+  531 |     | <span class='neutral'>     * a call to {approve}. `value` is the new allowance.</span>
+  532 |     | <span class='neutral'>     */</span>
+  533 |     | <span class='neutral'>    event Approval(address indexed owner, address indexed spender, uint256 value);</span>
+  534 |     | <span class='neutral'>}</span>
+  535 |     | <span class='neutral'></span>
+  536 |     | <span class='neutral'>// Part: OpenZeppelin/openzeppelin-contracts@3.1.0/Math</span>
+  537 |     | <span class='neutral'></span>
+  538 |     | <span class='neutral'>/**</span>
+  539 |     | <span class='neutral'> * @dev Standard math utilities missing in the Solidity language.</span>
+  540 |     | <span class='neutral'> */</span>
+  541 |     | <span class='neutral'>library Math {</span>
+  542 |     | <span class='neutral'>    /**</span>
+  543 |     | <span class='neutral'>     * @dev Returns the largest of two numbers.</span>
+  544 |     | <span class='neutral'>     */</span>
+  545 |     | <span class='neutral'>    function max(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  546 |     | <span class='neutral'>        return a &gt;= b ? a : b;</span>
+  547 |     | <span class='neutral'>    }</span>
+  548 |     | <span class='neutral'></span>
+  549 |     | <span class='neutral'>    /**</span>
+  550 |     | <span class='neutral'>     * @dev Returns the smallest of two numbers.</span>
+  551 |     | <span class='neutral'>     */</span>
+  552 |     | <span class='unexecuted'>    function min(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  553 |     | <span class='unexecuted'>        return a &lt; b ? a : b;</span>
+  554 |     | <span class='neutral'>    }</span>
+  555 |     | <span class='neutral'></span>
+  556 |     | <span class='neutral'>    /**</span>
+  557 |     | <span class='neutral'>     * @dev Returns the average of two numbers. The result is rounded towards</span>
+  558 |     | <span class='neutral'>     * zero.</span>
+  559 |     | <span class='neutral'>     */</span>
+  560 |     | <span class='neutral'>    function average(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  561 |     | <span class='neutral'>        // (a + b) / 2 can overflow, so we distribute</span>
+  562 |     | <span class='neutral'>        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);</span>
+  563 |     | <span class='neutral'>    }</span>
+  564 |     | <span class='neutral'>}</span>
+  565 |     | <span class='neutral'></span>
+  566 |     | <span class='neutral'>// Part: OpenZeppelin/openzeppelin-contracts@3.1.0/SafeMath</span>
+  567 |     | <span class='neutral'></span>
+  568 |     | <span class='neutral'>/**</span>
+  569 |     | <span class='neutral'> * @dev Wrappers over Solidity&#39;s arithmetic operations with added overflow</span>
+  570 |     | <span class='neutral'> * checks.</span>
+  571 |     | <span class='neutral'> *</span>
+  572 |     | <span class='neutral'> * Arithmetic operations in Solidity wrap on overflow. This can easily result</span>
+  573 |     | <span class='neutral'> * in bugs, because programmers usually assume that an overflow raises an</span>
+  574 |     | <span class='neutral'> * error, which is the standard behavior in high level programming languages.</span>
+  575 |     | <span class='neutral'> * `SafeMath` restores this intuition by reverting the transaction when an</span>
+  576 |     | <span class='neutral'> * operation overflows.</span>
+  577 |     | <span class='neutral'> *</span>
+  578 |     | <span class='neutral'> * Using this library instead of the unchecked operations eliminates an entire</span>
+  579 |     | <span class='neutral'> * class of bugs, so it&#39;s recommended to use it always.</span>
+  580 |     | <span class='neutral'> */</span>
+  581 |     | <span class='neutral'>library SafeMath {</span>
+  582 |     | <span class='neutral'>    /**</span>
+  583 |     | <span class='neutral'>     * @dev Returns the addition of two unsigned integers, reverting on</span>
+  584 |     | <span class='neutral'>     * overflow.</span>
+  585 |     | <span class='neutral'>     *</span>
+  586 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `+` operator.</span>
+  587 |     | <span class='neutral'>     *</span>
+  588 |     | <span class='neutral'>     * Requirements:</span>
+  589 |     | <span class='neutral'>     *</span>
+  590 |     | <span class='neutral'>     * - Addition cannot overflow.</span>
+  591 |     | <span class='neutral'>     */</span>
+  592 |     | <span class='unexecuted'>    function add(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  593 |     | <span class='unexecuted'>        uint256 c = a + b;</span>
+  594 |     | <span class='unexecuted'>        require(c &gt;= a, &quot;SafeMath: addition overflow&quot;);</span>
+  595 |     | <span class='neutral'></span>
+  596 |     | <span class='neutral'>        return c;</span>
+  597 |     | <span class='neutral'>    }</span>
+  598 |     | <span class='neutral'></span>
+  599 |     | <span class='neutral'>    /**</span>
+  600 |     | <span class='neutral'>     * @dev Returns the subtraction of two unsigned integers, reverting on</span>
+  601 |     | <span class='neutral'>     * overflow (when the result is negative).</span>
+  602 |     | <span class='neutral'>     *</span>
+  603 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `-` operator.</span>
+  604 |     | <span class='neutral'>     *</span>
+  605 |     | <span class='neutral'>     * Requirements:</span>
+  606 |     | <span class='neutral'>     *</span>
+  607 |     | <span class='neutral'>     * - Subtraction cannot overflow.</span>
+  608 |     | <span class='neutral'>     */</span>
+  609 |     | <span class='unexecuted'>    function sub(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  610 |     | <span class='unexecuted'>        return sub(a, b, &quot;SafeMath: subtraction overflow&quot;);</span>
+  611 |     | <span class='neutral'>    }</span>
+  612 |     | <span class='neutral'></span>
+  613 |     | <span class='neutral'>    /**</span>
+  614 |     | <span class='neutral'>     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on</span>
+  615 |     | <span class='neutral'>     * overflow (when the result is negative).</span>
+  616 |     | <span class='neutral'>     *</span>
+  617 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `-` operator.</span>
+  618 |     | <span class='neutral'>     *</span>
+  619 |     | <span class='neutral'>     * Requirements:</span>
+  620 |     | <span class='neutral'>     *</span>
+  621 |     | <span class='neutral'>     * - Subtraction cannot overflow.</span>
+  622 |     | <span class='neutral'>     */</span>
+  623 |     | <span class='unexecuted'>    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {</span>
+  624 |     | <span class='unexecuted'>        require(b &lt;= a, errorMessage);</span>
+  625 |     | <span class='unexecuted'>        uint256 c = a - b;</span>
+  626 |     | <span class='neutral'></span>
+  627 |     | <span class='neutral'>        return c;</span>
+  628 |     | <span class='neutral'>    }</span>
+  629 |     | <span class='neutral'></span>
+  630 |     | <span class='neutral'>    /**</span>
+  631 |     | <span class='neutral'>     * @dev Returns the multiplication of two unsigned integers, reverting on</span>
+  632 |     | <span class='neutral'>     * overflow.</span>
+  633 |     | <span class='neutral'>     *</span>
+  634 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `*` operator.</span>
+  635 |     | <span class='neutral'>     *</span>
+  636 |     | <span class='neutral'>     * Requirements:</span>
+  637 |     | <span class='neutral'>     *</span>
+  638 |     | <span class='neutral'>     * - Multiplication cannot overflow.</span>
+  639 |     | <span class='neutral'>     */</span>
+  640 |     | <span class='unexecuted'>    function mul(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  641 |     | <span class='neutral'>        // Gas optimization: this is cheaper than requiring &#39;a&#39; not being zero, but the</span>
+  642 |     | <span class='neutral'>        // benefit is lost if &#39;b&#39; is also tested.</span>
+  643 |     | <span class='neutral'>        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522</span>
+  644 |     | <span class='unexecuted'>        if (a == 0) {</span>
+  645 |     | <span class='unexecuted'>            return 0;</span>
+  646 |     | <span class='neutral'>        }</span>
+  647 |     | <span class='neutral'></span>
+  648 |     | <span class='unexecuted'>        uint256 c = a * b;</span>
+  649 |     | <span class='unexecuted'>        require(c / a == b, &quot;SafeMath: multiplication overflow&quot;);</span>
+  650 |     | <span class='neutral'></span>
+  651 |     | <span class='neutral'>        return c;</span>
+  652 |     | <span class='neutral'>    }</span>
+  653 |     | <span class='neutral'></span>
+  654 |     | <span class='neutral'>    /**</span>
+  655 |     | <span class='neutral'>     * @dev Returns the integer division of two unsigned integers. Reverts on</span>
+  656 |     | <span class='neutral'>     * division by zero. The result is rounded towards zero.</span>
+  657 |     | <span class='neutral'>     *</span>
+  658 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `/` operator. Note: this function uses a</span>
+  659 |     | <span class='neutral'>     * `revert` opcode (which leaves remaining gas untouched) while Solidity</span>
+  660 |     | <span class='neutral'>     * uses an invalid opcode to revert (consuming all remaining gas).</span>
+  661 |     | <span class='neutral'>     *</span>
+  662 |     | <span class='neutral'>     * Requirements:</span>
+  663 |     | <span class='neutral'>     *</span>
+  664 |     | <span class='neutral'>     * - The divisor cannot be zero.</span>
+  665 |     | <span class='neutral'>     */</span>
+  666 |     | <span class='unexecuted'>    function div(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  667 |     | <span class='unexecuted'>        return div(a, b, &quot;SafeMath: division by zero&quot;);</span>
+  668 |     | <span class='neutral'>    }</span>
+  669 |     | <span class='neutral'></span>
+  670 |     | <span class='neutral'>    /**</span>
+  671 |     | <span class='neutral'>     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on</span>
+  672 |     | <span class='neutral'>     * division by zero. The result is rounded towards zero.</span>
+  673 |     | <span class='neutral'>     *</span>
+  674 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `/` operator. Note: this function uses a</span>
+  675 |     | <span class='neutral'>     * `revert` opcode (which leaves remaining gas untouched) while Solidity</span>
+  676 |     | <span class='neutral'>     * uses an invalid opcode to revert (consuming all remaining gas).</span>
+  677 |     | <span class='neutral'>     *</span>
+  678 |     | <span class='neutral'>     * Requirements:</span>
+  679 |     | <span class='neutral'>     *</span>
+  680 |     | <span class='neutral'>     * - The divisor cannot be zero.</span>
+  681 |     | <span class='neutral'>     */</span>
+  682 |     | <span class='unexecuted'>    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {</span>
+  683 |     | <span class='unexecuted'>        require(b &gt; 0, errorMessage);</span>
+  684 |     | <span class='unexecuted'>        uint256 c = a / b;</span>
+  685 |     | <span class='neutral'>        // assert(a == b * c + a % b); // There is no case in which this doesn&#39;t hold</span>
+  686 |     | <span class='neutral'></span>
+  687 |     | <span class='neutral'>        return c;</span>
+  688 |     | <span class='neutral'>    }</span>
+  689 |     | <span class='neutral'></span>
+  690 |     | <span class='neutral'>    /**</span>
+  691 |     | <span class='neutral'>     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),</span>
+  692 |     | <span class='neutral'>     * Reverts when dividing by zero.</span>
+  693 |     | <span class='neutral'>     *</span>
+  694 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `%` operator. This function uses a `revert`</span>
+  695 |     | <span class='neutral'>     * opcode (which leaves remaining gas untouched) while Solidity uses an</span>
+  696 |     | <span class='neutral'>     * invalid opcode to revert (consuming all remaining gas).</span>
+  697 |     | <span class='neutral'>     *</span>
+  698 |     | <span class='neutral'>     * Requirements:</span>
+  699 |     | <span class='neutral'>     *</span>
+  700 |     | <span class='neutral'>     * - The divisor cannot be zero.</span>
+  701 |     | <span class='neutral'>     */</span>
+  702 |     | <span class='neutral'>    function mod(uint256 a, uint256 b) internal pure returns (uint256) {</span>
+  703 |     | <span class='neutral'>        return mod(a, b, &quot;SafeMath: modulo by zero&quot;);</span>
+  704 |     | <span class='neutral'>    }</span>
+  705 |     | <span class='neutral'></span>
+  706 |     | <span class='neutral'>    /**</span>
+  707 |     | <span class='neutral'>     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),</span>
+  708 |     | <span class='neutral'>     * Reverts with custom message when dividing by zero.</span>
+  709 |     | <span class='neutral'>     *</span>
+  710 |     | <span class='neutral'>     * Counterpart to Solidity&#39;s `%` operator. This function uses a `revert`</span>
+  711 |     | <span class='neutral'>     * opcode (which leaves remaining gas untouched) while Solidity uses an</span>
+  712 |     | <span class='neutral'>     * invalid opcode to revert (consuming all remaining gas).</span>
+  713 |     | <span class='neutral'>     *</span>
+  714 |     | <span class='neutral'>     * Requirements:</span>
+  715 |     | <span class='neutral'>     *</span>
+  716 |     | <span class='neutral'>     * - The divisor cannot be zero.</span>
+  717 |     | <span class='neutral'>     */</span>
+  718 |     | <span class='neutral'>    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {</span>
+  719 |     | <span class='neutral'>        require(b != 0, errorMessage);</span>
+  720 |     | <span class='neutral'>        return a % b;</span>
+  721 |     | <span class='neutral'>    }</span>
+  722 |     | <span class='neutral'>}</span>
+  723 |     | <span class='neutral'></span>
+  724 |     | <span class='neutral'>// Part: yearn/yearn-vaults@0.4.3/HealthCheck</span>
+  725 |     | <span class='neutral'></span>
+  726 |     | <span class='neutral'>interface HealthCheck {</span>
+  727 |     | <span class='neutral'>    function check(</span>
+  728 |     | <span class='neutral'>        uint256 profit,</span>
+  729 |     | <span class='neutral'>        uint256 loss,</span>
+  730 |     | <span class='neutral'>        uint256 debtPayment,</span>
+  731 |     | <span class='neutral'>        uint256 debtOutstanding,</span>
+  732 |     | <span class='neutral'>        uint256 totalDebt</span>
+  733 |     | <span class='neutral'>    ) external view returns (bool);</span>
+  734 |     | <span class='neutral'>}</span>
+  735 |     | <span class='neutral'></span>
+  736 |     | <span class='neutral'>// Part: IUniswapV2Router02</span>
+  737 |     | <span class='neutral'></span>
+  738 |     | <span class='neutral'>interface IUniswapV2Router02 is IUniswapV2Router01 {</span>
+  739 |     | <span class='neutral'>    function removeLiquidityETHSupportingFeeOnTransferTokens(</span>
+  740 |     | <span class='neutral'>        address token,</span>
+  741 |     | <span class='neutral'>        uint256 liquidity,</span>
+  742 |     | <span class='neutral'>        uint256 amountTokenMin,</span>
+  743 |     | <span class='neutral'>        uint256 amountETHMin,</span>
+  744 |     | <span class='neutral'>        address to,</span>
+  745 |     | <span class='neutral'>        uint256 deadline</span>
+  746 |     | <span class='neutral'>    ) external returns (uint256 amountETH);</span>
+  747 |     | <span class='neutral'></span>
+  748 |     | <span class='neutral'>    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(</span>
+  749 |     | <span class='neutral'>        address token,</span>
+  750 |     | <span class='neutral'>        uint256 liquidity,</span>
+  751 |     | <span class='neutral'>        uint256 amountTokenMin,</span>
+  752 |     | <span class='neutral'>        uint256 amountETHMin,</span>
+  753 |     | <span class='neutral'>        address to,</span>
+  754 |     | <span class='neutral'>        uint256 deadline,</span>
+  755 |     | <span class='neutral'>        bool approveMax,</span>
+  756 |     | <span class='neutral'>        uint8 v,</span>
+  757 |     | <span class='neutral'>        bytes32 r,</span>
+  758 |     | <span class='neutral'>        bytes32 s</span>
+  759 |     | <span class='neutral'>    ) external returns (uint256 amountETH);</span>
+  760 |     | <span class='neutral'></span>
+  761 |     | <span class='neutral'>    function swapExactTokensForTokensSupportingFeeOnTransferTokens(</span>
+  762 |     | <span class='neutral'>        uint256 amountIn,</span>
+  763 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  764 |     | <span class='neutral'>        address[] calldata path,</span>
+  765 |     | <span class='neutral'>        address to,</span>
+  766 |     | <span class='neutral'>        uint256 deadline</span>
+  767 |     | <span class='neutral'>    ) external;</span>
+  768 |     | <span class='neutral'></span>
+  769 |     | <span class='neutral'>    function swapExactETHForTokensSupportingFeeOnTransferTokens(</span>
+  770 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  771 |     | <span class='neutral'>        address[] calldata path,</span>
+  772 |     | <span class='neutral'>        address to,</span>
+  773 |     | <span class='neutral'>        uint256 deadline</span>
+  774 |     | <span class='neutral'>    ) external payable;</span>
+  775 |     | <span class='neutral'></span>
+  776 |     | <span class='neutral'>    function swapExactTokensForETHSupportingFeeOnTransferTokens(</span>
+  777 |     | <span class='neutral'>        uint256 amountIn,</span>
+  778 |     | <span class='neutral'>        uint256 amountOutMin,</span>
+  779 |     | <span class='neutral'>        address[] calldata path,</span>
+  780 |     | <span class='neutral'>        address to,</span>
+  781 |     | <span class='neutral'>        uint256 deadline</span>
+  782 |     | <span class='neutral'>    ) external;</span>
+  783 |     | <span class='neutral'>}</span>
+  784 |     | <span class='neutral'></span>
+  785 |     | <span class='neutral'>// Part: OpenZeppelin/openzeppelin-contracts@3.1.0/SafeERC20</span>
+  786 |     | <span class='neutral'></span>
+  787 |     | <span class='neutral'>/**</span>
+  788 |     | <span class='neutral'> * @title SafeERC20</span>
+  789 |     | <span class='neutral'> * @dev Wrappers around ERC20 operations that throw on failure (when the token</span>
+  790 |     | <span class='neutral'> * contract returns false). Tokens that return no value (and instead revert or</span>
+  791 |     | <span class='neutral'> * throw on failure) are also supported, non-reverting calls are assumed to be</span>
+  792 |     | <span class='neutral'> * successful.</span>
+  793 |     | <span class='neutral'> * To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,</span>
+  794 |     | <span class='neutral'> * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.</span>
+  795 |     | <span class='neutral'> */</span>
+  796 |     | <span class='neutral'>library SafeERC20 {</span>
+  797 |     | <span class='neutral'>    using SafeMath for uint256;</span>
+  798 |     | <span class='neutral'>    using Address for address;</span>
+  799 |     | <span class='neutral'></span>
+  800 |     | <span class='unexecuted'>    function safeTransfer(IERC20 token, address to, uint256 value) internal {</span>
+  801 |     | <span class='unexecuted'>        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));</span>
+  802 |     | <span class='neutral'>    }</span>
+  803 |     | <span class='neutral'></span>
+  804 |     | <span class='neutral'>    function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {</span>
+  805 |     | <span class='neutral'>        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));</span>
+  806 |     | <span class='neutral'>    }</span>
+  807 |     | <span class='neutral'></span>
+  808 |     | <span class='neutral'>    /**</span>
+  809 |     | <span class='neutral'>     * @dev Deprecated. This function has issues similar to the ones found in</span>
+  810 |     | <span class='neutral'>     * {IERC20-approve}, and its usage is discouraged.</span>
+  811 |     | <span class='neutral'>     *</span>
+  812 |     | <span class='neutral'>     * Whenever possible, use {safeIncreaseAllowance} and</span>
+  813 |     | <span class='neutral'>     * {safeDecreaseAllowance} instead.</span>
+  814 |     | <span class='neutral'>     */</span>
+  815 |     | <span class='unexecuted'>    function safeApprove(IERC20 token, address spender, uint256 value) internal {</span>
+  816 |     | <span class='neutral'>        // safeApprove should only be called when setting an initial allowance,</span>
+  817 |     | <span class='neutral'>        // or when resetting it to zero. To increase and decrease it, use</span>
+  818 |     | <span class='neutral'>        // &#39;safeIncreaseAllowance&#39; and &#39;safeDecreaseAllowance&#39;</span>
+  819 |     | <span class='neutral'>        // solhint-disable-next-line max-line-length</span>
+  820 |     | <span class='unexecuted'>        require((value == 0) || (token.allowance(address(this), spender) == 0),</span>
+  821 |     | <span class='neutral'>            &quot;SafeERC20: approve from non-zero to non-zero allowance&quot;</span>
+  822 |     | <span class='neutral'>        );</span>
+  823 |     | <span class='unexecuted'>        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));</span>
+  824 |     | <span class='neutral'>    }</span>
+  825 |     | <span class='neutral'></span>
+  826 |     | <span class='neutral'>    function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {</span>
+  827 |     | <span class='neutral'>        uint256 newAllowance = token.allowance(address(this), spender).add(value);</span>
+  828 |     | <span class='neutral'>        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));</span>
+  829 |     | <span class='neutral'>    }</span>
+  830 |     | <span class='neutral'></span>
+  831 |     | <span class='neutral'>    function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {</span>
+  832 |     | <span class='neutral'>        uint256 newAllowance = token.allowance(address(this), spender).sub(value, &quot;SafeERC20: decreased allowance below zero&quot;);</span>
+  833 |     | <span class='neutral'>        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));</span>
+  834 |     | <span class='neutral'>    }</span>
+  835 |     | <span class='neutral'></span>
+  836 |     | <span class='neutral'>    /**</span>
+  837 |     | <span class='neutral'>     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement</span>
+  838 |     | <span class='neutral'>     * on the return value: the return value is optional (but if data is returned, it must not be false).</span>
+  839 |     | <span class='neutral'>     * @param token The token targeted by the call.</span>
+  840 |     | <span class='neutral'>     * @param data The call data (encoded using abi.encode or one of its variants).</span>
+  841 |     | <span class='neutral'>     */</span>
+  842 |     | <span class='unexecuted'>    function _callOptionalReturn(IERC20 token, bytes memory data) private {</span>
+  843 |     | <span class='neutral'>        // We need to perform a low level call here, to bypass Solidity&#39;s return data size checking mechanism, since</span>
+  844 |     | <span class='neutral'>        // we&#39;re implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that</span>
+  845 |     | <span class='neutral'>        // the target address contains contract code and also asserts for success in the low-level call.</span>
+  846 |     | <span class='neutral'></span>
+  847 |     | <span class='unexecuted'>        bytes memory returndata = address(token).functionCall(data, &quot;SafeERC20: low-level call failed&quot;);</span>
+  848 |     | <span class='unexecuted'>        if (returndata.length &gt; 0) { // Return data is optional</span>
+  849 |     | <span class='neutral'>            // solhint-disable-next-line max-line-length</span>
+  850 |     | <span class='unexecuted'>            require(abi.decode(returndata, (bool)), &quot;SafeERC20: ERC20 operation did not succeed&quot;);</span>
+  851 |     | <span class='neutral'>        }</span>
+  852 |     | <span class='neutral'>    }</span>
+  853 |     | <span class='neutral'>}</span>
+  854 |     | <span class='neutral'></span>
+  855 |     | <span class='neutral'>// Part: yearn/yearn-vaults@0.4.3/VaultAPI</span>
+  856 |     | <span class='neutral'></span>
+  857 |     | <span class='neutral'>interface VaultAPI is IERC20 {</span>
+  858 |     | <span class='neutral'>    function name() external view returns (string calldata);</span>
+  859 |     | <span class='neutral'></span>
+  860 |     | <span class='neutral'>    function symbol() external view returns (string calldata);</span>
+  861 |     | <span class='neutral'></span>
+  862 |     | <span class='neutral'>    function decimals() external view returns (uint256);</span>
+  863 |     | <span class='neutral'></span>
+  864 |     | <span class='neutral'>    function apiVersion() external pure returns (string memory);</span>
+  865 |     | <span class='neutral'></span>
+  866 |     | <span class='neutral'>    function permit(</span>
+  867 |     | <span class='neutral'>        address owner,</span>
+  868 |     | <span class='neutral'>        address spender,</span>
+  869 |     | <span class='neutral'>        uint256 amount,</span>
+  870 |     | <span class='neutral'>        uint256 expiry,</span>
+  871 |     | <span class='neutral'>        bytes calldata signature</span>
+  872 |     | <span class='neutral'>    ) external returns (bool);</span>
+  873 |     | <span class='neutral'></span>
+  874 |     | <span class='neutral'>    // NOTE: Vyper produces multiple signatures for a given function with &quot;default&quot; args</span>
+  875 |     | <span class='neutral'>    function deposit() external returns (uint256);</span>
+  876 |     | <span class='neutral'></span>
+  877 |     | <span class='neutral'>    function deposit(uint256 amount) external returns (uint256);</span>
+  878 |     | <span class='neutral'></span>
+  879 |     | <span class='neutral'>    function deposit(uint256 amount, address recipient) external returns (uint256);</span>
+  880 |     | <span class='neutral'></span>
+  881 |     | <span class='neutral'>    // NOTE: Vyper produces multiple signatures for a given function with &quot;default&quot; args</span>
+  882 |     | <span class='neutral'>    function withdraw() external returns (uint256);</span>
+  883 |     | <span class='neutral'></span>
+  884 |     | <span class='neutral'>    function withdraw(uint256 maxShares) external returns (uint256);</span>
+  885 |     | <span class='neutral'></span>
+  886 |     | <span class='neutral'>    function withdraw(uint256 maxShares, address recipient) external returns (uint256);</span>
+  887 |     | <span class='neutral'></span>
+  888 |     | <span class='neutral'>    function token() external view returns (address);</span>
+  889 |     | <span class='neutral'></span>
+  890 |     | <span class='neutral'>    function strategies(address _strategy) external view returns (StrategyParams memory);</span>
+  891 |     | <span class='neutral'></span>
+  892 |     | <span class='neutral'>    function pricePerShare() external view returns (uint256);</span>
+  893 |     | <span class='neutral'></span>
+  894 |     | <span class='neutral'>    function totalAssets() external view returns (uint256);</span>
+  895 |     | <span class='neutral'></span>
+  896 |     | <span class='neutral'>    function depositLimit() external view returns (uint256);</span>
+  897 |     | <span class='neutral'></span>
+  898 |     | <span class='neutral'>    function maxAvailableShares() external view returns (uint256);</span>
+  899 |     | <span class='neutral'></span>
+  900 |     | <span class='neutral'>    /**</span>
+  901 |     | <span class='neutral'>     * View how much the Vault would increase this Strategy&#39;s borrow limit,</span>
+  902 |     | <span class='neutral'>     * based on its present performance (since its last report). Can be used to</span>
+  903 |     | <span class='neutral'>     * determine expectedReturn in your Strategy.</span>
+  904 |     | <span class='neutral'>     */</span>
+  905 |     | <span class='neutral'>    function creditAvailable() external view returns (uint256);</span>
+  906 |     | <span class='neutral'></span>
+  907 |     | <span class='neutral'>    /**</span>
+  908 |     | <span class='neutral'>     * View how much the Vault would like to pull back from the Strategy,</span>
+  909 |     | <span class='neutral'>     * based on its present performance (since its last report). Can be used to</span>
+  910 |     | <span class='neutral'>     * determine expectedReturn in your Strategy.</span>
+  911 |     | <span class='neutral'>     */</span>
+  912 |     | <span class='neutral'>    function debtOutstanding() external view returns (uint256);</span>
+  913 |     | <span class='neutral'></span>
+  914 |     | <span class='neutral'>    /**</span>
+  915 |     | <span class='neutral'>     * View how much the Vault expect this Strategy to return at the current</span>
+  916 |     | <span class='neutral'>     * block, based on its present performance (since its last report). Can be</span>
+  917 |     | <span class='neutral'>     * used to determine expectedReturn in your Strategy.</span>
+  918 |     | <span class='neutral'>     */</span>
+  919 |     | <span class='neutral'>    function expectedReturn() external view returns (uint256);</span>
+  920 |     | <span class='neutral'></span>
+  921 |     | <span class='neutral'>    /**</span>
+  922 |     | <span class='neutral'>     * This is the main contact point where the Strategy interacts with the</span>
+  923 |     | <span class='neutral'>     * Vault. It is critical that this call is handled as intended by the</span>
+  924 |     | <span class='neutral'>     * Strategy. Therefore, this function will be called by BaseStrategy to</span>
+  925 |     | <span class='neutral'>     * make sure the integration is correct.</span>
+  926 |     | <span class='neutral'>     */</span>
+  927 |     | <span class='neutral'>    function report(</span>
+  928 |     | <span class='neutral'>        uint256 _gain,</span>
+  929 |     | <span class='neutral'>        uint256 _loss,</span>
+  930 |     | <span class='neutral'>        uint256 _debtPayment</span>
+  931 |     | <span class='neutral'>    ) external returns (uint256);</span>
+  932 |     | <span class='neutral'></span>
+  933 |     | <span class='neutral'>    /**</span>
+  934 |     | <span class='neutral'>     * This function should only be used in the scenario where the Strategy is</span>
+  935 |     | <span class='neutral'>     * being retired but no migration of the positions are possible, or in the</span>
+  936 |     | <span class='neutral'>     * extreme scenario that the Strategy needs to be put into &quot;Emergency Exit&quot;</span>
+  937 |     | <span class='neutral'>     * mode in order for it to exit as quickly as possible. The latter scenario</span>
+  938 |     | <span class='neutral'>     * could be for any reason that is considered &quot;critical&quot; that the Strategy</span>
+  939 |     | <span class='neutral'>     * exits its position as fast as possible, such as a sudden change in</span>
+  940 |     | <span class='neutral'>     * market conditions leading to losses, or an imminent failure in an</span>
+  941 |     | <span class='neutral'>     * external dependency.</span>
+  942 |     | <span class='neutral'>     */</span>
+  943 |     | <span class='neutral'>    function revokeStrategy() external;</span>
+  944 |     | <span class='neutral'></span>
+  945 |     | <span class='neutral'>    /**</span>
+  946 |     | <span class='neutral'>     * View the governance address of the Vault to assert privileged functions</span>
+  947 |     | <span class='neutral'>     * can only be called by governance. The Strategy serves the Vault, so it</span>
+  948 |     | <span class='neutral'>     * is subject to governance defined by the Vault.</span>
+  949 |     | <span class='neutral'>     */</span>
+  950 |     | <span class='neutral'>    function governance() external view returns (address);</span>
+  951 |     | <span class='neutral'></span>
+  952 |     | <span class='neutral'>    /**</span>
+  953 |     | <span class='neutral'>     * View the management address of the Vault to assert privileged functions</span>
+  954 |     | <span class='neutral'>     * can only be called by management. The Strategy serves the Vault, so it</span>
+  955 |     | <span class='neutral'>     * is subject to management defined by the Vault.</span>
+  956 |     | <span class='neutral'>     */</span>
+  957 |     | <span class='neutral'>    function management() external view returns (address);</span>
+  958 |     | <span class='neutral'></span>
+  959 |     | <span class='neutral'>    /**</span>
+  960 |     | <span class='neutral'>     * View the guardian address of the Vault to assert privileged functions</span>
+  961 |     | <span class='neutral'>     * can only be called by guardian. The Strategy serves the Vault, so it</span>
+  962 |     | <span class='neutral'>     * is subject to guardian defined by the Vault.</span>
+  963 |     | <span class='neutral'>     */</span>
+  964 |     | <span class='neutral'>    function guardian() external view returns (address);</span>
+  965 |     | <span class='neutral'>}</span>
+  966 |     | <span class='neutral'></span>
+  967 |     | <span class='neutral'>// Part: yearn/yearn-vaults@0.4.3/BaseStrategy</span>
+  968 |     | <span class='neutral'></span>
+  969 |     | <span class='neutral'>/**</span>
+  970 |     | <span class='neutral'> * @title Yearn Base Strategy</span>
+  971 |     | <span class='neutral'> * @author yearn.finance</span>
+  972 |     | <span class='neutral'> * @notice</span>
+  973 |     | <span class='neutral'> *  BaseStrategy implements all of the required functionality to interoperate</span>
+  974 |     | <span class='neutral'> *  closely with the Vault contract. This contract should be inherited and the</span>
+  975 |     | <span class='neutral'> *  abstract methods implemented to adapt the Strategy to the particular needs</span>
+  976 |     | <span class='neutral'> *  it has to create a return.</span>
+  977 |     | <span class='neutral'> *</span>
+  978 |     | <span class='neutral'> *  Of special interest is the relationship between `harvest()` and</span>
+  979 |     | <span class='neutral'> *  `vault.report()&#39;. `harvest()` may be called simply because enough time has</span>
+  980 |     | <span class='neutral'> *  elapsed since the last report, and not because any funds need to be moved</span>
+  981 |     | <span class='neutral'> *  or positions adjusted. This is critical so that the Vault may maintain an</span>
+  982 |     | <span class='neutral'> *  accurate picture of the Strategy&#39;s performance. See  `vault.report()`,</span>
+  983 |     | <span class='neutral'> *  `harvest()`, and `harvestTrigger()` for further details.</span>
+  984 |     | <span class='neutral'> */</span>
+  985 |     | <span class='neutral'></span>
+  986 |     | <span class='neutral'>abstract contract BaseStrategy {</span>
+  987 |     | <span class='neutral'>    using SafeMath for uint256;</span>
+  988 |     | <span class='neutral'>    using SafeERC20 for IERC20;</span>
+  989 |     | <span class='unexecuted'>    string public metadataURI;</span>
+  990 |     | <span class='neutral'></span>
+  991 |     | <span class='neutral'>    // health checks</span>
+  992 |     | <span class='unexecuted'>    bool public doHealthCheck;</span>
+  993 |     | <span class='unexecuted'>    address public healthCheck;</span>
+  994 |     | <span class='neutral'></span>
+  995 |     | <span class='neutral'>    /**</span>
+  996 |     | <span class='neutral'>     * @notice</span>
+  997 |     | <span class='neutral'>     *  Used to track which version of `StrategyAPI` this Strategy</span>
+  998 |     | <span class='neutral'>     *  implements.</span>
+  999 |     | <span class='neutral'>     * @dev The Strategy&#39;s version must match the Vault&#39;s `API_VERSION`.</span>
+ 1000 |     | <span class='neutral'>     * @return A string which holds the current API version of this contract.</span>
+ 1001 |     | <span class='neutral'>     */</span>
+ 1002 |     | <span class='unexecuted'>    function apiVersion() public pure returns (string memory) {</span>
+ 1003 |     | <span class='unexecuted'>        return &quot;0.4.3&quot;;</span>
+ 1004 |     | <span class='neutral'>    }</span>
+ 1005 |     | <span class='neutral'></span>
+ 1006 |     | <span class='neutral'>    /**</span>
+ 1007 |     | <span class='neutral'>     * @notice This Strategy&#39;s name.</span>
+ 1008 |     | <span class='neutral'>     * @dev</span>
+ 1009 |     | <span class='neutral'>     *  You can use this field to manage the &quot;version&quot; of this Strategy, e.g.</span>
+ 1010 |     | <span class='neutral'>     *  `StrategySomethingOrOtherV1`. However, &quot;API Version&quot; is managed by</span>
+ 1011 |     | <span class='neutral'>     *  `apiVersion()` function above.</span>
+ 1012 |     | <span class='neutral'>     * @return This Strategy&#39;s name.</span>
+ 1013 |     | <span class='neutral'>     */</span>
+ 1014 |     | <span class='neutral'>    function name() external view virtual returns (string memory);</span>
+ 1015 |     | <span class='neutral'></span>
+ 1016 |     | <span class='neutral'>    /**</span>
+ 1017 |     | <span class='neutral'>     * @notice</span>
+ 1018 |     | <span class='neutral'>     *  The amount (priced in want) of the total assets managed by this strategy should not count</span>
+ 1019 |     | <span class='neutral'>     *  towards Yearn&#39;s TVL calculations.</span>
+ 1020 |     | <span class='neutral'>     * @dev</span>
+ 1021 |     | <span class='neutral'>     *  You can override this field to set it to a non-zero value if some of the assets of this</span>
+ 1022 |     | <span class='neutral'>     *  Strategy is somehow delegated inside another part of of Yearn&#39;s ecosystem e.g. another Vault.</span>
+ 1023 |     | <span class='neutral'>     *  Note that this value must be strictly less than or equal to the amount provided by</span>
+ 1024 |     | <span class='neutral'>     *  `estimatedTotalAssets()` below, as the TVL calc will be total assets minus delegated assets.</span>
+ 1025 |     | <span class='neutral'>     *  Also note that this value is used to determine the total assets under management by this</span>
+ 1026 |     | <span class='neutral'>     *  strategy, for the purposes of computing the management fee in `Vault`</span>
+ 1027 |     | <span class='neutral'>     * @return</span>
+ 1028 |     | <span class='neutral'>     *  The amount of assets this strategy manages that should not be included in Yearn&#39;s Total Value</span>
+ 1029 |     | <span class='neutral'>     *  Locked (TVL) calculation across it&#39;s ecosystem.</span>
+ 1030 |     | <span class='neutral'>     */</span>
+ 1031 |     | <span class='unexecuted'>    function delegatedAssets() external view virtual returns (uint256) {</span>
+ 1032 |     | <span class='neutral'>        return 0;</span>
+ 1033 |     | <span class='neutral'>    }</span>
+ 1034 |     | <span class='neutral'></span>
+ 1035 |     | <span class='unexecuted'>    VaultAPI public vault;</span>
+ 1036 |     | <span class='unexecuted'>    address public strategist;</span>
+ 1037 |     | <span class='unexecuted'>    address public rewards;</span>
+ 1038 |     | <span class='unexecuted'>    address public keeper;</span>
+ 1039 |     | <span class='neutral'></span>
+ 1040 |     | <span class='unexecuted'>    IERC20 public want;</span>
+ 1041 |     | <span class='neutral'></span>
+ 1042 |     | <span class='neutral'>    // So indexers can keep track of this</span>
+ 1043 |     | <span class='neutral'>    event Harvested(uint256 profit, uint256 loss, uint256 debtPayment, uint256 debtOutstanding);</span>
+ 1044 |     | <span class='neutral'></span>
+ 1045 |     | <span class='neutral'>    event UpdatedStrategist(address newStrategist);</span>
+ 1046 |     | <span class='neutral'></span>
+ 1047 |     | <span class='neutral'>    event UpdatedKeeper(address newKeeper);</span>
+ 1048 |     | <span class='neutral'></span>
+ 1049 |     | <span class='neutral'>    event UpdatedRewards(address rewards);</span>
+ 1050 |     | <span class='neutral'></span>
+ 1051 |     | <span class='neutral'>    event UpdatedMinReportDelay(uint256 delay);</span>
+ 1052 |     | <span class='neutral'></span>
+ 1053 |     | <span class='neutral'>    event UpdatedMaxReportDelay(uint256 delay);</span>
+ 1054 |     | <span class='neutral'></span>
+ 1055 |     | <span class='neutral'>    event UpdatedProfitFactor(uint256 profitFactor);</span>
+ 1056 |     | <span class='neutral'></span>
+ 1057 |     | <span class='neutral'>    event UpdatedDebtThreshold(uint256 debtThreshold);</span>
+ 1058 |     | <span class='neutral'></span>
+ 1059 |     | <span class='neutral'>    event EmergencyExitEnabled();</span>
+ 1060 |     | <span class='neutral'></span>
+ 1061 |     | <span class='neutral'>    event UpdatedMetadataURI(string metadataURI);</span>
+ 1062 |     | <span class='neutral'></span>
+ 1063 |     | <span class='neutral'>    // The minimum number of seconds between harvest calls. See</span>
+ 1064 |     | <span class='neutral'>    // `setMinReportDelay()` for more details.</span>
+ 1065 |     | <span class='unexecuted'>    uint256 public minReportDelay;</span>
+ 1066 |     | <span class='neutral'></span>
+ 1067 |     | <span class='neutral'>    // The maximum number of seconds between harvest calls. See</span>
+ 1068 |     | <span class='neutral'>    // `setMaxReportDelay()` for more details.</span>
+ 1069 |     | <span class='unexecuted'>    uint256 public maxReportDelay;</span>
+ 1070 |     | <span class='neutral'></span>
+ 1071 |     | <span class='neutral'>    // The minimum multiple that `callCost` must be above the credit/profit to</span>
+ 1072 |     | <span class='neutral'>    // be &quot;justifiable&quot;. See `setProfitFactor()` for more details.</span>
+ 1073 |     | <span class='unexecuted'>    uint256 public profitFactor;</span>
+ 1074 |     | <span class='neutral'></span>
+ 1075 |     | <span class='neutral'>    // Use this to adjust the threshold at which running a debt causes a</span>
+ 1076 |     | <span class='neutral'>    // harvest trigger. See `setDebtThreshold()` for more details.</span>
+ 1077 |     | <span class='unexecuted'>    uint256 public debtThreshold;</span>
+ 1078 |     | <span class='neutral'></span>
+ 1079 |     | <span class='neutral'>    // See note on `setEmergencyExit()`.</span>
+ 1080 |     | <span class='unexecuted'>    bool public emergencyExit;</span>
+ 1081 |     | <span class='neutral'></span>
+ 1082 |     | <span class='neutral'>    // modifiers</span>
+ 1083 |     | <span class='neutral'>    modifier onlyAuthorized() {</span>
+ 1084 |     | <span class='unexecuted'>        require(msg.sender == strategist || msg.sender == governance(), &quot;!authorized&quot;);</span>
+ 1085 |     | <span class='unexecuted'>        _;</span>
+ 1086 |     | <span class='neutral'>    }</span>
+ 1087 |     | <span class='neutral'></span>
+ 1088 |     | <span class='neutral'>    modifier onlyEmergencyAuthorized() {</span>
+ 1089 |     | <span class='unexecuted'>        require(</span>
+ 1090 |     | <span class='unexecuted'>            msg.sender == strategist || msg.sender == governance() || msg.sender == vault.guardian() || msg.sender == vault.management(),</span>
+ 1091 |     | <span class='neutral'>            &quot;!authorized&quot;</span>
+ 1092 |     | <span class='neutral'>        );</span>
+ 1093 |     | <span class='neutral'>        _;</span>
+ 1094 |     | <span class='neutral'>    }</span>
+ 1095 |     | <span class='neutral'></span>
+ 1096 |     | <span class='neutral'>    modifier onlyStrategist() {</span>
+ 1097 |     | <span class='unexecuted'>        require(msg.sender == strategist, &quot;!strategist&quot;);</span>
+ 1098 |     | <span class='neutral'>        _;</span>
+ 1099 |     | <span class='neutral'>    }</span>
+ 1100 |     | <span class='neutral'></span>
+ 1101 |     | <span class='neutral'>    modifier onlyGovernance() {</span>
+ 1102 |     | <span class='unexecuted'>        require(msg.sender == governance(), &quot;!authorized&quot;);</span>
+ 1103 |     | <span class='unexecuted'>        _;</span>
+ 1104 |     | <span class='neutral'>    }</span>
+ 1105 |     | <span class='neutral'></span>
+ 1106 |     | <span class='neutral'>    modifier onlyKeepers() {</span>
+ 1107 |     | <span class='unexecuted'>        require(</span>
+ 1108 |     | <span class='unexecuted'>            msg.sender == keeper ||</span>
+ 1109 |     | <span class='unexecuted'>                msg.sender == strategist ||</span>
+ 1110 |     | <span class='unexecuted'>                msg.sender == governance() ||</span>
+ 1111 |     | <span class='unexecuted'>                msg.sender == vault.guardian() ||</span>
+ 1112 |     | <span class='unexecuted'>                msg.sender == vault.management(),</span>
+ 1113 |     | <span class='neutral'>            &quot;!authorized&quot;</span>
+ 1114 |     | <span class='neutral'>        );</span>
+ 1115 |     | <span class='unexecuted'>        _;</span>
+ 1116 |     | <span class='neutral'>    }</span>
+ 1117 |     | <span class='neutral'></span>
+ 1118 |     | <span class='neutral'>    modifier onlyVaultManagers() {</span>
+ 1119 |     | <span class='unexecuted'>        require(msg.sender == vault.management() || msg.sender == governance(), &quot;!authorized&quot;);</span>
+ 1120 |     | <span class='neutral'>        _;</span>
+ 1121 |     | <span class='neutral'>    }</span>
+ 1122 |     | <span class='neutral'></span>
+ 1123 |     | <span class='neutral'>    constructor(address _vault) public {</span>
+ 1124 |     | <span class='neutral'>        _initialize(_vault, msg.sender, msg.sender, msg.sender);</span>
+ 1125 |     | <span class='neutral'>    }</span>
+ 1126 |     | <span class='neutral'></span>
+ 1127 |     | <span class='neutral'>    /**</span>
+ 1128 |     | <span class='neutral'>     * @notice</span>
+ 1129 |     | <span class='neutral'>     *  Initializes the Strategy, this is called only once, when the</span>
+ 1130 |     | <span class='neutral'>     *  contract is deployed.</span>
+ 1131 |     | <span class='neutral'>     * @dev `_vault` should implement `VaultAPI`.</span>
+ 1132 |     | <span class='neutral'>     * @param _vault The address of the Vault responsible for this Strategy.</span>
+ 1133 |     | <span class='neutral'>     * @param _strategist The address to assign as `strategist`.</span>
+ 1134 |     | <span class='neutral'>     * The strategist is able to change the reward address</span>
+ 1135 |     | <span class='neutral'>     * @param _rewards  The address to use for pulling rewards.</span>
+ 1136 |     | <span class='neutral'>     * @param _keeper The adddress of the _keeper. _keeper</span>
+ 1137 |     | <span class='neutral'>     * can harvest and tend a strategy.</span>
+ 1138 |     | <span class='neutral'>     */</span>
+ 1139 |     | <span class='neutral'>    function _initialize(</span>
+ 1140 |     | <span class='neutral'>        address _vault,</span>
+ 1141 |     | <span class='neutral'>        address _strategist,</span>
+ 1142 |     | <span class='neutral'>        address _rewards,</span>
+ 1143 |     | <span class='neutral'>        address _keeper</span>
+ 1144 |     | <span class='neutral'>    ) internal {</span>
+ 1145 |     | <span class='neutral'>        require(address(want) == address(0), &quot;Strategy already initialized&quot;);</span>
+ 1146 |     | <span class='neutral'></span>
+ 1147 |     | <span class='neutral'>        vault = VaultAPI(_vault);</span>
+ 1148 |     | <span class='neutral'>        want = IERC20(vault.token());</span>
+ 1149 |     | <span class='neutral'>        want.safeApprove(_vault, uint256(-1)); // Give Vault unlimited access (might save gas)</span>
+ 1150 |     | <span class='neutral'>        strategist = _strategist;</span>
+ 1151 |     | <span class='neutral'>        rewards = _rewards;</span>
+ 1152 |     | <span class='neutral'>        keeper = _keeper;</span>
+ 1153 |     | <span class='neutral'></span>
+ 1154 |     | <span class='neutral'>        // initialize variables</span>
+ 1155 |     | <span class='neutral'>        minReportDelay = 0;</span>
+ 1156 |     | <span class='neutral'>        maxReportDelay = 86400;</span>
+ 1157 |     | <span class='neutral'>        profitFactor = 100;</span>
+ 1158 |     | <span class='neutral'>        debtThreshold = 0;</span>
+ 1159 |     | <span class='neutral'></span>
+ 1160 |     | <span class='neutral'>        vault.approve(rewards, uint256(-1)); // Allow rewards to be pulled</span>
+ 1161 |     | <span class='neutral'>    }</span>
+ 1162 |     | <span class='neutral'></span>
+ 1163 |     | <span class='unexecuted'>    function setHealthCheck(address _healthCheck) external onlyVaultManagers {</span>
+ 1164 |     | <span class='unexecuted'>        healthCheck = _healthCheck;</span>
+ 1165 |     | <span class='neutral'>    }</span>
+ 1166 |     | <span class='neutral'></span>
+ 1167 |     | <span class='unexecuted'>    function setDoHealthCheck(bool _doHealthCheck) external onlyVaultManagers {</span>
+ 1168 |     | <span class='unexecuted'>        doHealthCheck = _doHealthCheck;</span>
+ 1169 |     | <span class='neutral'>    }</span>
+ 1170 |     | <span class='neutral'></span>
+ 1171 |     | <span class='neutral'>    /**</span>
+ 1172 |     | <span class='neutral'>     * @notice</span>
+ 1173 |     | <span class='neutral'>     *  Used to change `strategist`.</span>
+ 1174 |     | <span class='neutral'>     *</span>
+ 1175 |     | <span class='neutral'>     *  This may only be called by governance or the existing strategist.</span>
+ 1176 |     | <span class='neutral'>     * @param _strategist The new address to assign as `strategist`.</span>
+ 1177 |     | <span class='neutral'>     */</span>
+ 1178 |     | <span class='unexecuted'>    function setStrategist(address _strategist) external onlyAuthorized {</span>
+ 1179 |     | <span class='unexecuted'>        require(_strategist != address(0));</span>
+ 1180 |     | <span class='unexecuted'>        strategist = _strategist;</span>
+ 1181 |     | <span class='unexecuted'>        emit UpdatedStrategist(_strategist);</span>
+ 1182 |     | <span class='neutral'>    }</span>
+ 1183 |     | <span class='neutral'></span>
+ 1184 |     | <span class='neutral'>    /**</span>
+ 1185 |     | <span class='neutral'>     * @notice</span>
+ 1186 |     | <span class='neutral'>     *  Used to change `keeper`.</span>
+ 1187 |     | <span class='neutral'>     *</span>
+ 1188 |     | <span class='neutral'>     *  `keeper` is the only address that may call `tend()` or `harvest()`,</span>
+ 1189 |     | <span class='neutral'>     *  other than `governance()` or `strategist`. However, unlike</span>
+ 1190 |     | <span class='neutral'>     *  `governance()` or `strategist`, `keeper` may *only* call `tend()`</span>
+ 1191 |     | <span class='neutral'>     *  and `harvest()`, and no other authorized functions, following the</span>
+ 1192 |     | <span class='neutral'>     *  principle of least privilege.</span>
+ 1193 |     | <span class='neutral'>     *</span>
+ 1194 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1195 |     | <span class='neutral'>     * @param _keeper The new address to assign as `keeper`.</span>
+ 1196 |     | <span class='neutral'>     */</span>
+ 1197 |     | <span class='unexecuted'>    function setKeeper(address _keeper) external onlyAuthorized {</span>
+ 1198 |     | <span class='unexecuted'>        require(_keeper != address(0));</span>
+ 1199 |     | <span class='unexecuted'>        keeper = _keeper;</span>
+ 1200 |     | <span class='unexecuted'>        emit UpdatedKeeper(_keeper);</span>
+ 1201 |     | <span class='neutral'>    }</span>
+ 1202 |     | <span class='neutral'></span>
+ 1203 |     | <span class='neutral'>    /**</span>
+ 1204 |     | <span class='neutral'>     * @notice</span>
+ 1205 |     | <span class='neutral'>     *  Used to change `rewards`. EOA or smart contract which has the permission</span>
+ 1206 |     | <span class='neutral'>     *  to pull rewards from the vault.</span>
+ 1207 |     | <span class='neutral'>     *</span>
+ 1208 |     | <span class='neutral'>     *  This may only be called by the strategist.</span>
+ 1209 |     | <span class='neutral'>     * @param _rewards The address to use for pulling rewards.</span>
+ 1210 |     | <span class='neutral'>     */</span>
+ 1211 |     | <span class='unexecuted'>    function setRewards(address _rewards) external onlyStrategist {</span>
+ 1212 |     | <span class='unexecuted'>        require(_rewards != address(0));</span>
+ 1213 |     | <span class='unexecuted'>        vault.approve(rewards, 0);</span>
+ 1214 |     | <span class='unexecuted'>        rewards = _rewards;</span>
+ 1215 |     | <span class='unexecuted'>        vault.approve(rewards, uint256(-1));</span>
+ 1216 |     | <span class='unexecuted'>        emit UpdatedRewards(_rewards);</span>
+ 1217 |     | <span class='neutral'>    }</span>
+ 1218 |     | <span class='neutral'></span>
+ 1219 |     | <span class='neutral'>    /**</span>
+ 1220 |     | <span class='neutral'>     * @notice</span>
+ 1221 |     | <span class='neutral'>     *  Used to change `minReportDelay`. `minReportDelay` is the minimum number</span>
+ 1222 |     | <span class='neutral'>     *  of blocks that should pass for `harvest()` to be called.</span>
+ 1223 |     | <span class='neutral'>     *</span>
+ 1224 |     | <span class='neutral'>     *  For external keepers (such as the Keep3r network), this is the minimum</span>
+ 1225 |     | <span class='neutral'>     *  time between jobs to wait. (see `harvestTrigger()`</span>
+ 1226 |     | <span class='neutral'>     *  for more details.)</span>
+ 1227 |     | <span class='neutral'>     *</span>
+ 1228 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1229 |     | <span class='neutral'>     * @param _delay The minimum number of seconds to wait between harvests.</span>
+ 1230 |     | <span class='neutral'>     */</span>
+ 1231 |     | <span class='unexecuted'>    function setMinReportDelay(uint256 _delay) external onlyAuthorized {</span>
+ 1232 |     | <span class='unexecuted'>        minReportDelay = _delay;</span>
+ 1233 |     | <span class='unexecuted'>        emit UpdatedMinReportDelay(_delay);</span>
+ 1234 |     | <span class='neutral'>    }</span>
+ 1235 |     | <span class='neutral'></span>
+ 1236 |     | <span class='neutral'>    /**</span>
+ 1237 |     | <span class='neutral'>     * @notice</span>
+ 1238 |     | <span class='neutral'>     *  Used to change `maxReportDelay`. `maxReportDelay` is the maximum number</span>
+ 1239 |     | <span class='neutral'>     *  of blocks that should pass for `harvest()` to be called.</span>
+ 1240 |     | <span class='neutral'>     *</span>
+ 1241 |     | <span class='neutral'>     *  For external keepers (such as the Keep3r network), this is the maximum</span>
+ 1242 |     | <span class='neutral'>     *  time between jobs to wait. (see `harvestTrigger()`</span>
+ 1243 |     | <span class='neutral'>     *  for more details.)</span>
+ 1244 |     | <span class='neutral'>     *</span>
+ 1245 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1246 |     | <span class='neutral'>     * @param _delay The maximum number of seconds to wait between harvests.</span>
+ 1247 |     | <span class='neutral'>     */</span>
+ 1248 |     | <span class='unexecuted'>    function setMaxReportDelay(uint256 _delay) external onlyAuthorized {</span>
+ 1249 |     | <span class='unexecuted'>        maxReportDelay = _delay;</span>
+ 1250 |     | <span class='unexecuted'>        emit UpdatedMaxReportDelay(_delay);</span>
+ 1251 |     | <span class='neutral'>    }</span>
+ 1252 |     | <span class='neutral'></span>
+ 1253 |     | <span class='neutral'>    /**</span>
+ 1254 |     | <span class='neutral'>     * @notice</span>
+ 1255 |     | <span class='neutral'>     *  Used to change `profitFactor`. `profitFactor` is used to determine</span>
+ 1256 |     | <span class='neutral'>     *  if it&#39;s worthwhile to harvest, given gas costs. (See `harvestTrigger()`</span>
+ 1257 |     | <span class='neutral'>     *  for more details.)</span>
+ 1258 |     | <span class='neutral'>     *</span>
+ 1259 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1260 |     | <span class='neutral'>     * @param _profitFactor A ratio to multiply anticipated</span>
+ 1261 |     | <span class='neutral'>     * `harvest()` gas cost against.</span>
+ 1262 |     | <span class='neutral'>     */</span>
+ 1263 |     | <span class='unexecuted'>    function setProfitFactor(uint256 _profitFactor) external onlyAuthorized {</span>
+ 1264 |     | <span class='unexecuted'>        profitFactor = _profitFactor;</span>
+ 1265 |     | <span class='unexecuted'>        emit UpdatedProfitFactor(_profitFactor);</span>
+ 1266 |     | <span class='neutral'>    }</span>
+ 1267 |     | <span class='neutral'></span>
+ 1268 |     | <span class='neutral'>    /**</span>
+ 1269 |     | <span class='neutral'>     * @notice</span>
+ 1270 |     | <span class='neutral'>     *  Sets how far the Strategy can go into loss without a harvest and report</span>
+ 1271 |     | <span class='neutral'>     *  being required.</span>
+ 1272 |     | <span class='neutral'>     *</span>
+ 1273 |     | <span class='neutral'>     *  By default this is 0, meaning any losses would cause a harvest which</span>
+ 1274 |     | <span class='neutral'>     *  will subsequently report the loss to the Vault for tracking. (See</span>
+ 1275 |     | <span class='neutral'>     *  `harvestTrigger()` for more details.)</span>
+ 1276 |     | <span class='neutral'>     *</span>
+ 1277 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1278 |     | <span class='neutral'>     * @param _debtThreshold How big of a loss this Strategy may carry without</span>
+ 1279 |     | <span class='neutral'>     * being required to report to the Vault.</span>
+ 1280 |     | <span class='neutral'>     */</span>
+ 1281 |     | <span class='unexecuted'>    function setDebtThreshold(uint256 _debtThreshold) external onlyAuthorized {</span>
+ 1282 |     | <span class='unexecuted'>        debtThreshold = _debtThreshold;</span>
+ 1283 |     | <span class='unexecuted'>        emit UpdatedDebtThreshold(_debtThreshold);</span>
+ 1284 |     | <span class='neutral'>    }</span>
+ 1285 |     | <span class='neutral'></span>
+ 1286 |     | <span class='neutral'>    /**</span>
+ 1287 |     | <span class='neutral'>     * @notice</span>
+ 1288 |     | <span class='neutral'>     *  Used to change `metadataURI`. `metadataURI` is used to store the URI</span>
+ 1289 |     | <span class='neutral'>     * of the file describing the strategy.</span>
+ 1290 |     | <span class='neutral'>     *</span>
+ 1291 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1292 |     | <span class='neutral'>     * @param _metadataURI The URI that describe the strategy.</span>
+ 1293 |     | <span class='neutral'>     */</span>
+ 1294 |     | <span class='unexecuted'>    function setMetadataURI(string calldata _metadataURI) external onlyAuthorized {</span>
+ 1295 |     | <span class='unexecuted'>        metadataURI = _metadataURI;</span>
+ 1296 |     | <span class='unexecuted'>        emit UpdatedMetadataURI(_metadataURI);</span>
+ 1297 |     | <span class='neutral'>    }</span>
+ 1298 |     | <span class='neutral'></span>
+ 1299 |     | <span class='neutral'>    /**</span>
+ 1300 |     | <span class='neutral'>     * Resolve governance address from Vault contract, used to make assertions</span>
+ 1301 |     | <span class='neutral'>     * on protected functions in the Strategy.</span>
+ 1302 |     | <span class='neutral'>     */</span>
+ 1303 |     | <span class='unexecuted'>    function governance() internal view returns (address) {</span>
+ 1304 |     | <span class='unexecuted'>        return vault.governance();</span>
+ 1305 |     | <span class='neutral'>    }</span>
+ 1306 |     | <span class='neutral'></span>
+ 1307 |     | <span class='neutral'>    /**</span>
+ 1308 |     | <span class='neutral'>     * @notice</span>
+ 1309 |     | <span class='neutral'>     *  Provide an accurate conversion from `_amtInWei` (denominated in wei)</span>
+ 1310 |     | <span class='neutral'>     *  to `want` (using the native decimal characteristics of `want`).</span>
+ 1311 |     | <span class='neutral'>     * @dev</span>
+ 1312 |     | <span class='neutral'>     *  Care must be taken when working with decimals to assure that the conversion</span>
+ 1313 |     | <span class='neutral'>     *  is compatible. As an example:</span>
+ 1314 |     | <span class='neutral'>     *</span>
+ 1315 |     | <span class='neutral'>     *      given 1e17 wei (0.1 ETH) as input, and want is USDC (6 decimals),</span>
+ 1316 |     | <span class='neutral'>     *      with USDC/ETH = 1800, this should give back 1800000000 (180 USDC)</span>
+ 1317 |     | <span class='neutral'>     *</span>
+ 1318 |     | <span class='neutral'>     * @param _amtInWei The amount (in wei/1e-18 ETH) to convert to `want`</span>
+ 1319 |     | <span class='neutral'>     * @return The amount in `want` of `_amtInEth` converted to `want`</span>
+ 1320 |     | <span class='neutral'>     **/</span>
+ 1321 |     | <span class='neutral'>    function ethToWant(uint256 _amtInWei) public view virtual returns (uint256);</span>
+ 1322 |     | <span class='neutral'></span>
+ 1323 |     | <span class='neutral'>    /**</span>
+ 1324 |     | <span class='neutral'>     * @notice</span>
+ 1325 |     | <span class='neutral'>     *  Provide an accurate estimate for the total amount of assets</span>
+ 1326 |     | <span class='neutral'>     *  (principle + return) that this Strategy is currently managing,</span>
+ 1327 |     | <span class='neutral'>     *  denominated in terms of `want` tokens.</span>
+ 1328 |     | <span class='neutral'>     *</span>
+ 1329 |     | <span class='neutral'>     *  This total should be &quot;realizable&quot; e.g. the total value that could</span>
+ 1330 |     | <span class='neutral'>     *  *actually* be obtained from this Strategy if it were to divest its</span>
+ 1331 |     | <span class='neutral'>     *  entire position based on current on-chain conditions.</span>
+ 1332 |     | <span class='neutral'>     * @dev</span>
+ 1333 |     | <span class='neutral'>     *  Care must be taken in using this function, since it relies on external</span>
+ 1334 |     | <span class='neutral'>     *  systems, which could be manipulated by the attacker to give an inflated</span>
+ 1335 |     | <span class='neutral'>     *  (or reduced) value produced by this function, based on current on-chain</span>
+ 1336 |     | <span class='neutral'>     *  conditions (e.g. this function is possible to influence through</span>
+ 1337 |     | <span class='neutral'>     *  flashloan attacks, oracle manipulations, or other DeFi attack</span>
+ 1338 |     | <span class='neutral'>     *  mechanisms).</span>
+ 1339 |     | <span class='neutral'>     *</span>
+ 1340 |     | <span class='neutral'>     *  It is up to governance to use this function to correctly order this</span>
+ 1341 |     | <span class='neutral'>     *  Strategy relative to its peers in the withdrawal queue to minimize</span>
+ 1342 |     | <span class='neutral'>     *  losses for the Vault based on sudden withdrawals. This value should be</span>
+ 1343 |     | <span class='neutral'>     *  higher than the total debt of the Strategy and higher than its expected</span>
+ 1344 |     | <span class='neutral'>     *  value to be &quot;safe&quot;.</span>
+ 1345 |     | <span class='neutral'>     * @return The estimated total assets in this Strategy.</span>
+ 1346 |     | <span class='neutral'>     */</span>
+ 1347 |     | <span class='neutral'>    function estimatedTotalAssets() public view virtual returns (uint256);</span>
+ 1348 |     | <span class='neutral'></span>
+ 1349 |     | <span class='neutral'>    /*</span>
+ 1350 |     | <span class='neutral'>     * @notice</span>
+ 1351 |     | <span class='neutral'>     *  Provide an indication of whether this strategy is currently &quot;active&quot;</span>
+ 1352 |     | <span class='neutral'>     *  in that it is managing an active position, or will manage a position in</span>
+ 1353 |     | <span class='neutral'>     *  the future. This should correlate to `harvest()` activity, so that Harvest</span>
+ 1354 |     | <span class='neutral'>     *  events can be tracked externally by indexing agents.</span>
+ 1355 |     | <span class='neutral'>     * @return True if the strategy is actively managing a position.</span>
+ 1356 |     | <span class='neutral'>     */</span>
+ 1357 |     | <span class='unexecuted'>    function isActive() public view returns (bool) {</span>
+ 1358 |     | <span class='unexecuted'>        return vault.strategies(address(this)).debtRatio &gt; 0 || estimatedTotalAssets() &gt; 0;</span>
+ 1359 |     | <span class='neutral'>    }</span>
+ 1360 |     | <span class='neutral'></span>
+ 1361 |     | <span class='neutral'>    /**</span>
+ 1362 |     | <span class='neutral'>     * Perform any Strategy unwinding or other calls necessary to capture the</span>
+ 1363 |     | <span class='neutral'>     * &quot;free return&quot; this Strategy has generated since the last time its core</span>
+ 1364 |     | <span class='neutral'>     * position(s) were adjusted. Examples include unwrapping extra rewards.</span>
+ 1365 |     | <span class='neutral'>     * This call is only used during &quot;normal operation&quot; of a Strategy, and</span>
+ 1366 |     | <span class='neutral'>     * should be optimized to minimize losses as much as possible.</span>
+ 1367 |     | <span class='neutral'>     *</span>
+ 1368 |     | <span class='neutral'>     * This method returns any realized profits and/or realized losses</span>
+ 1369 |     | <span class='neutral'>     * incurred, and should return the total amounts of profits/losses/debt</span>
+ 1370 |     | <span class='neutral'>     * payments (in `want` tokens) for the Vault&#39;s accounting (e.g.</span>
+ 1371 |     | <span class='neutral'>     * `want.balanceOf(this) &gt;= _debtPayment + _profit`).</span>
+ 1372 |     | <span class='neutral'>     *</span>
+ 1373 |     | <span class='neutral'>     * `_debtOutstanding` will be 0 if the Strategy is not past the configured</span>
+ 1374 |     | <span class='neutral'>     * debt limit, otherwise its value will be how far past the debt limit</span>
+ 1375 |     | <span class='neutral'>     * the Strategy is. The Strategy&#39;s debt limit is configured in the Vault.</span>
+ 1376 |     | <span class='neutral'>     *</span>
+ 1377 |     | <span class='neutral'>     * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.</span>
+ 1378 |     | <span class='neutral'>     *       It is okay for it to be less than `_debtOutstanding`, as that</span>
+ 1379 |     | <span class='neutral'>     *       should only used as a guide for how much is left to pay back.</span>
+ 1380 |     | <span class='neutral'>     *       Payments should be made to minimize loss from slippage, debt,</span>
+ 1381 |     | <span class='neutral'>     *       withdrawal fees, etc.</span>
+ 1382 |     | <span class='neutral'>     *</span>
+ 1383 |     | <span class='neutral'>     * See `vault.debtOutstanding()`.</span>
+ 1384 |     | <span class='neutral'>     */</span>
+ 1385 |     | <span class='neutral'>    function prepareReturn(uint256 _debtOutstanding)</span>
+ 1386 |     | <span class='neutral'>        internal</span>
+ 1387 |     | <span class='neutral'>        virtual</span>
+ 1388 |     | <span class='neutral'>        returns (</span>
+ 1389 |     | <span class='neutral'>            uint256 _profit,</span>
+ 1390 |     | <span class='neutral'>            uint256 _loss,</span>
+ 1391 |     | <span class='neutral'>            uint256 _debtPayment</span>
+ 1392 |     | <span class='neutral'>        );</span>
+ 1393 |     | <span class='neutral'></span>
+ 1394 |     | <span class='neutral'>    /**</span>
+ 1395 |     | <span class='neutral'>     * Perform any adjustments to the core position(s) of this Strategy given</span>
+ 1396 |     | <span class='neutral'>     * what change the Vault made in the &quot;investable capital&quot; available to the</span>
+ 1397 |     | <span class='neutral'>     * Strategy. Note that all &quot;free capital&quot; in the Strategy after the report</span>
+ 1398 |     | <span class='neutral'>     * was made is available for reinvestment. Also note that this number</span>
+ 1399 |     | <span class='neutral'>     * could be 0, and you should handle that scenario accordingly.</span>
+ 1400 |     | <span class='neutral'>     *</span>
+ 1401 |     | <span class='neutral'>     * See comments regarding `_debtOutstanding` on `prepareReturn()`.</span>
+ 1402 |     | <span class='neutral'>     */</span>
+ 1403 |     | <span class='neutral'>    function adjustPosition(uint256 _debtOutstanding) internal virtual;</span>
+ 1404 |     | <span class='neutral'></span>
+ 1405 |     | <span class='neutral'>    /**</span>
+ 1406 |     | <span class='neutral'>     * Liquidate up to `_amountNeeded` of `want` of this strategy&#39;s positions,</span>
+ 1407 |     | <span class='neutral'>     * irregardless of slippage. Any excess will be re-invested with `adjustPosition()`.</span>
+ 1408 |     | <span class='neutral'>     * This function should return the amount of `want` tokens made available by the</span>
+ 1409 |     | <span class='neutral'>     * liquidation. If there is a difference between them, `_loss` indicates whether the</span>
+ 1410 |     | <span class='neutral'>     * difference is due to a realized loss, or if there is some other sitution at play</span>
+ 1411 |     | <span class='neutral'>     * (e.g. locked funds) where the amount made available is less than what is needed.</span>
+ 1412 |     | <span class='neutral'>     *</span>
+ 1413 |     | <span class='neutral'>     * NOTE: The invariant `_liquidatedAmount + _loss &lt;= _amountNeeded` should always be maintained</span>
+ 1414 |     | <span class='neutral'>     */</span>
+ 1415 |     | <span class='neutral'>    function liquidatePosition(uint256 _amountNeeded) internal virtual returns (uint256 _liquidatedAmount, uint256 _loss);</span>
+ 1416 |     | <span class='neutral'></span>
+ 1417 |     | <span class='neutral'>    /**</span>
+ 1418 |     | <span class='neutral'>     * Liquidate everything and returns the amount that got freed.</span>
+ 1419 |     | <span class='neutral'>     * This function is used during emergency exit instead of `prepareReturn()` to</span>
+ 1420 |     | <span class='neutral'>     * liquidate all of the Strategy&#39;s positions back to the Vault.</span>
+ 1421 |     | <span class='neutral'>     */</span>
+ 1422 |     | <span class='neutral'></span>
+ 1423 |     | <span class='neutral'>    function liquidateAllPositions() internal virtual returns (uint256 _amountFreed);</span>
+ 1424 |     | <span class='neutral'></span>
+ 1425 |     | <span class='neutral'>    /**</span>
+ 1426 |     | <span class='neutral'>     * @notice</span>
+ 1427 |     | <span class='neutral'>     *  Provide a signal to the keeper that `tend()` should be called. The</span>
+ 1428 |     | <span class='neutral'>     *  keeper will provide the estimated gas cost that they would pay to call</span>
+ 1429 |     | <span class='neutral'>     *  `tend()`, and this function should use that estimate to make a</span>
+ 1430 |     | <span class='neutral'>     *  determination if calling it is &quot;worth it&quot; for the keeper. This is not</span>
+ 1431 |     | <span class='neutral'>     *  the only consideration into issuing this trigger, for example if the</span>
+ 1432 |     | <span class='neutral'>     *  position would be negatively affected if `tend()` is not called</span>
+ 1433 |     | <span class='neutral'>     *  shortly, then this can return `true` even if the keeper might be</span>
+ 1434 |     | <span class='neutral'>     *  &quot;at a loss&quot; (keepers are always reimbursed by Yearn).</span>
+ 1435 |     | <span class='neutral'>     * @dev</span>
+ 1436 |     | <span class='neutral'>     *  `callCostInWei` must be priced in terms of `wei` (1e-18 ETH).</span>
+ 1437 |     | <span class='neutral'>     *</span>
+ 1438 |     | <span class='neutral'>     *  This call and `harvestTrigger()` should never return `true` at the same</span>
+ 1439 |     | <span class='neutral'>     *  time.</span>
+ 1440 |     | <span class='neutral'>     * @param callCostInWei The keeper&#39;s estimated gas cost to call `tend()` (in wei).</span>
+ 1441 |     | <span class='neutral'>     * @return `true` if `tend()` should be called, `false` otherwise.</span>
+ 1442 |     | <span class='neutral'>     */</span>
+ 1443 |     | <span class='unexecuted'>    function tendTrigger(uint256 callCostInWei) public view virtual returns (bool) {</span>
+ 1444 |     | <span class='neutral'>        // We usually don&#39;t need tend, but if there are positions that need</span>
+ 1445 |     | <span class='neutral'>        // active maintainence, overriding this function is how you would</span>
+ 1446 |     | <span class='neutral'>        // signal for that.</span>
+ 1447 |     | <span class='neutral'>        // If your implementation uses the cost of the call in want, you can</span>
+ 1448 |     | <span class='neutral'>        // use uint256 callCost = ethToWant(callCostInWei);</span>
+ 1449 |     | <span class='neutral'></span>
+ 1450 |     | <span class='neutral'>        return false;</span>
+ 1451 |     | <span class='neutral'>    }</span>
+ 1452 |     | <span class='neutral'></span>
+ 1453 |     | <span class='neutral'>    /**</span>
+ 1454 |     | <span class='neutral'>     * @notice</span>
+ 1455 |     | <span class='neutral'>     *  Adjust the Strategy&#39;s position. The purpose of tending isn&#39;t to</span>
+ 1456 |     | <span class='neutral'>     *  realize gains, but to maximize yield by reinvesting any returns.</span>
+ 1457 |     | <span class='neutral'>     *</span>
+ 1458 |     | <span class='neutral'>     *  See comments on `adjustPosition()`.</span>
+ 1459 |     | <span class='neutral'>     *</span>
+ 1460 |     | <span class='neutral'>     *  This may only be called by governance, the strategist, or the keeper.</span>
+ 1461 |     | <span class='neutral'>     */</span>
+ 1462 |     | <span class='unexecuted'>    function tend() external onlyKeepers {</span>
+ 1463 |     | <span class='neutral'>        // Don&#39;t take profits with this call, but adjust for better gains</span>
+ 1464 |     | <span class='unexecuted'>        adjustPosition(vault.debtOutstanding());</span>
+ 1465 |     | <span class='neutral'>    }</span>
+ 1466 |     | <span class='neutral'></span>
+ 1467 |     | <span class='neutral'>    /**</span>
+ 1468 |     | <span class='neutral'>     * @notice</span>
+ 1469 |     | <span class='neutral'>     *  Provide a signal to the keeper that `harvest()` should be called. The</span>
+ 1470 |     | <span class='neutral'>     *  keeper will provide the estimated gas cost that they would pay to call</span>
+ 1471 |     | <span class='neutral'>     *  `harvest()`, and this function should use that estimate to make a</span>
+ 1472 |     | <span class='neutral'>     *  determination if calling it is &quot;worth it&quot; for the keeper. This is not</span>
+ 1473 |     | <span class='neutral'>     *  the only consideration into issuing this trigger, for example if the</span>
+ 1474 |     | <span class='neutral'>     *  position would be negatively affected if `harvest()` is not called</span>
+ 1475 |     | <span class='neutral'>     *  shortly, then this can return `true` even if the keeper might be &quot;at a</span>
+ 1476 |     | <span class='neutral'>     *  loss&quot; (keepers are always reimbursed by Yearn).</span>
+ 1477 |     | <span class='neutral'>     * @dev</span>
+ 1478 |     | <span class='neutral'>     *  `callCostInWei` must be priced in terms of `wei` (1e-18 ETH).</span>
+ 1479 |     | <span class='neutral'>     *</span>
+ 1480 |     | <span class='neutral'>     *  This call and `tendTrigger` should never return `true` at the</span>
+ 1481 |     | <span class='neutral'>     *  same time.</span>
+ 1482 |     | <span class='neutral'>     *</span>
+ 1483 |     | <span class='neutral'>     *  See `min/maxReportDelay`, `profitFactor`, `debtThreshold` to adjust the</span>
+ 1484 |     | <span class='neutral'>     *  strategist-controlled parameters that will influence whether this call</span>
+ 1485 |     | <span class='neutral'>     *  returns `true` or not. These parameters will be used in conjunction</span>
+ 1486 |     | <span class='neutral'>     *  with the parameters reported to the Vault (see `params`) to determine</span>
+ 1487 |     | <span class='neutral'>     *  if calling `harvest()` is merited.</span>
+ 1488 |     | <span class='neutral'>     *</span>
+ 1489 |     | <span class='neutral'>     *  It is expected that an external system will check `harvestTrigger()`.</span>
+ 1490 |     | <span class='neutral'>     *  This could be a script run off a desktop or cloud bot (e.g.</span>
+ 1491 |     | <span class='neutral'>     *  https://github.com/iearn-finance/yearn-vaults/blob/main/scripts/keep.py),</span>
+ 1492 |     | <span class='neutral'>     *  or via an integration with the Keep3r network (e.g.</span>
+ 1493 |     | <span class='neutral'>     *  https://github.com/Macarse/GenericKeep3rV2/blob/master/contracts/keep3r/GenericKeep3rV2.sol).</span>
+ 1494 |     | <span class='neutral'>     * @param callCostInWei The keeper&#39;s estimated gas cost to call `harvest()` (in wei).</span>
+ 1495 |     | <span class='neutral'>     * @return `true` if `harvest()` should be called, `false` otherwise.</span>
+ 1496 |     | <span class='neutral'>     */</span>
+ 1497 |     | <span class='unexecuted'>    function harvestTrigger(uint256 callCostInWei) public view virtual returns (bool) {</span>
+ 1498 |     | <span class='unexecuted'>        uint256 callCost = ethToWant(callCostInWei);</span>
+ 1499 |     | <span class='unexecuted'>        StrategyParams memory params = vault.strategies(address(this));</span>
+ 1500 |     | <span class='neutral'></span>
+ 1501 |     | <span class='neutral'>        // Should not trigger if Strategy is not activated</span>
+ 1502 |     | <span class='unexecuted'>        if (params.activation == 0) return false;</span>
+ 1503 |     | <span class='neutral'></span>
+ 1504 |     | <span class='neutral'>        // Should not trigger if we haven&#39;t waited long enough since previous harvest</span>
+ 1505 |     | <span class='unexecuted'>        if (block.timestamp.sub(params.lastReport) &lt; minReportDelay) return false;</span>
+ 1506 |     | <span class='neutral'></span>
+ 1507 |     | <span class='neutral'>        // Should trigger if hasn&#39;t been called in a while</span>
+ 1508 |     | <span class='unexecuted'>        if (block.timestamp.sub(params.lastReport) &gt;= maxReportDelay) return true;</span>
+ 1509 |     | <span class='neutral'></span>
+ 1510 |     | <span class='neutral'>        // If some amount is owed, pay it back</span>
+ 1511 |     | <span class='neutral'>        // NOTE: Since debt is based on deposits, it makes sense to guard against large</span>
+ 1512 |     | <span class='neutral'>        //       changes to the value from triggering a harvest directly through user</span>
+ 1513 |     | <span class='neutral'>        //       behavior. This should ensure reasonable resistance to manipulation</span>
+ 1514 |     | <span class='neutral'>        //       from user-initiated withdrawals as the outstanding debt fluctuates.</span>
+ 1515 |     | <span class='unexecuted'>        uint256 outstanding = vault.debtOutstanding();</span>
+ 1516 |     | <span class='unexecuted'>        if (outstanding &gt; debtThreshold) return true;</span>
+ 1517 |     | <span class='neutral'></span>
+ 1518 |     | <span class='neutral'>        // Check for profits and losses</span>
+ 1519 |     | <span class='unexecuted'>        uint256 total = estimatedTotalAssets();</span>
+ 1520 |     | <span class='neutral'>        // Trigger if we have a loss to report</span>
+ 1521 |     | <span class='unexecuted'>        if (total.add(debtThreshold) &lt; params.totalDebt) return true;</span>
+ 1522 |     | <span class='neutral'></span>
+ 1523 |     | <span class='unexecuted'>        uint256 profit = 0;</span>
+ 1524 |     | <span class='unexecuted'>        if (total &gt; params.totalDebt) profit = total.sub(params.totalDebt); // We&#39;ve earned a profit!</span>
+ 1525 |     | <span class='neutral'></span>
+ 1526 |     | <span class='neutral'>        // Otherwise, only trigger if it &quot;makes sense&quot; economically (gas cost</span>
+ 1527 |     | <span class='neutral'>        // is &lt;N% of value moved)</span>
+ 1528 |     | <span class='unexecuted'>        uint256 credit = vault.creditAvailable();</span>
+ 1529 |     | <span class='unexecuted'>        return (profitFactor.mul(callCost) &lt; credit.add(profit));</span>
+ 1530 |     | <span class='neutral'>    }</span>
+ 1531 |     | <span class='neutral'></span>
+ 1532 |     | <span class='neutral'>    /**</span>
+ 1533 |     | <span class='neutral'>     * @notice</span>
+ 1534 |     | <span class='neutral'>     *  Harvests the Strategy, recognizing any profits or losses and adjusting</span>
+ 1535 |     | <span class='neutral'>     *  the Strategy&#39;s position.</span>
+ 1536 |     | <span class='neutral'>     *</span>
+ 1537 |     | <span class='neutral'>     *  In the rare case the Strategy is in emergency shutdown, this will exit</span>
+ 1538 |     | <span class='neutral'>     *  the Strategy&#39;s position.</span>
+ 1539 |     | <span class='neutral'>     *</span>
+ 1540 |     | <span class='neutral'>     *  This may only be called by governance, the strategist, or the keeper.</span>
+ 1541 |     | <span class='neutral'>     * @dev</span>
+ 1542 |     | <span class='neutral'>     *  When `harvest()` is called, the Strategy reports to the Vault (via</span>
+ 1543 |     | <span class='neutral'>     *  `vault.report()`), so in some cases `harvest()` must be called in order</span>
+ 1544 |     | <span class='neutral'>     *  to take in profits, to borrow newly available funds from the Vault, or</span>
+ 1545 |     | <span class='neutral'>     *  otherwise adjust its position. In other cases `harvest()` must be</span>
+ 1546 |     | <span class='neutral'>     *  called to report to the Vault on the Strategy&#39;s position, especially if</span>
+ 1547 |     | <span class='neutral'>     *  any losses have occurred.</span>
+ 1548 |     | <span class='neutral'>     */</span>
+ 1549 |     | <span class='unexecuted'>    function harvest() external onlyKeepers {</span>
+ 1550 |     | <span class='unexecuted'>        uint256 profit = 0;</span>
+ 1551 |     | <span class='unexecuted'>        uint256 loss = 0;</span>
+ 1552 |     | <span class='unexecuted'>        uint256 debtOutstanding = vault.debtOutstanding();</span>
+ 1553 |     | <span class='unexecuted'>        uint256 debtPayment = 0;</span>
+ 1554 |     | <span class='unexecuted'>        if (emergencyExit) {</span>
+ 1555 |     | <span class='neutral'>            // Free up as much capital as possible</span>
+ 1556 |     | <span class='unexecuted'>            uint256 amountFreed = liquidateAllPositions();</span>
+ 1557 |     | <span class='unexecuted'>            if (amountFreed &lt; debtOutstanding) {</span>
+ 1558 |     | <span class='unexecuted'>                loss = debtOutstanding.sub(amountFreed);</span>
+ 1559 |     | <span class='unexecuted'>            } else if (amountFreed &gt; debtOutstanding) {</span>
+ 1560 |     | <span class='unexecuted'>                profit = amountFreed.sub(debtOutstanding);</span>
+ 1561 |     | <span class='neutral'>            }</span>
+ 1562 |     | <span class='unexecuted'>            debtPayment = debtOutstanding.sub(loss);</span>
+ 1563 |     | <span class='neutral'>        } else {</span>
+ 1564 |     | <span class='neutral'>            // Free up returns for Vault to pull</span>
+ 1565 |     | <span class='unexecuted'>            (profit, loss, debtPayment) = prepareReturn(debtOutstanding);</span>
+ 1566 |     | <span class='neutral'>        }</span>
+ 1567 |     | <span class='neutral'></span>
+ 1568 |     | <span class='neutral'>        // Allow Vault to take up to the &quot;harvested&quot; balance of this contract,</span>
+ 1569 |     | <span class='neutral'>        // which is the amount it has earned since the last time it reported to</span>
+ 1570 |     | <span class='neutral'>        // the Vault.</span>
+ 1571 |     | <span class='unexecuted'>        uint256 totalDebt = vault.strategies(address(this)).totalDebt;</span>
+ 1572 |     | <span class='unexecuted'>        debtOutstanding = vault.report(profit, loss, debtPayment);</span>
+ 1573 |     | <span class='neutral'></span>
+ 1574 |     | <span class='neutral'>        // Check if free returns are left, and re-invest them</span>
+ 1575 |     | <span class='unexecuted'>        adjustPosition(debtOutstanding);</span>
+ 1576 |     | <span class='neutral'></span>
+ 1577 |     | <span class='neutral'>        // call healthCheck contract</span>
+ 1578 |     | <span class='unexecuted'>        if (doHealthCheck &amp;&amp; healthCheck != address(0)) {</span>
+ 1579 |     | <span class='unexecuted'>            require(HealthCheck(healthCheck).check(profit, loss, debtPayment, debtOutstanding, totalDebt), &quot;!healthcheck&quot;);</span>
+ 1580 |     | <span class='neutral'>        } else {</span>
+ 1581 |     | <span class='unexecuted'>            doHealthCheck = true;</span>
+ 1582 |     | <span class='neutral'>        }</span>
+ 1583 |     | <span class='neutral'></span>
+ 1584 |     | <span class='unexecuted'>        emit Harvested(profit, loss, debtPayment, debtOutstanding);</span>
+ 1585 |     | <span class='neutral'>    }</span>
+ 1586 |     | <span class='neutral'></span>
+ 1587 |     | <span class='neutral'>    /**</span>
+ 1588 |     | <span class='neutral'>     * @notice</span>
+ 1589 |     | <span class='neutral'>     *  Withdraws `_amountNeeded` to `vault`.</span>
+ 1590 |     | <span class='neutral'>     *</span>
+ 1591 |     | <span class='neutral'>     *  This may only be called by the Vault.</span>
+ 1592 |     | <span class='neutral'>     * @param _amountNeeded How much `want` to withdraw.</span>
+ 1593 |     | <span class='neutral'>     * @return _loss Any realized losses</span>
+ 1594 |     | <span class='neutral'>     */</span>
+ 1595 |     | <span class='unexecuted'>    function withdraw(uint256 _amountNeeded) external returns (uint256 _loss) {</span>
+ 1596 |     | <span class='unexecuted'>        require(msg.sender == address(vault), &quot;!vault&quot;);</span>
+ 1597 |     | <span class='neutral'>        // Liquidate as much as possible to `want`, up to `_amountNeeded`</span>
+ 1598 |     | <span class='unexecuted'>        uint256 amountFreed;</span>
+ 1599 |     | <span class='unexecuted'>        (amountFreed, _loss) = liquidatePosition(_amountNeeded);</span>
+ 1600 |     | <span class='neutral'>        // Send it directly back (NOTE: Using `msg.sender` saves some gas here)</span>
+ 1601 |     | <span class='unexecuted'>        want.safeTransfer(msg.sender, amountFreed);</span>
+ 1602 |     | <span class='neutral'>        // NOTE: Reinvest anything leftover on next `tend`/`harvest`</span>
+ 1603 |     | <span class='neutral'>    }</span>
+ 1604 |     | <span class='neutral'></span>
+ 1605 |     | <span class='neutral'>    /**</span>
+ 1606 |     | <span class='neutral'>     * Do anything necessary to prepare this Strategy for migration, such as</span>
+ 1607 |     | <span class='neutral'>     * transferring any reserve or LP tokens, CDPs, or other tokens or stores of</span>
+ 1608 |     | <span class='neutral'>     * value.</span>
+ 1609 |     | <span class='neutral'>     */</span>
+ 1610 |     | <span class='neutral'>    function prepareMigration(address _newStrategy) internal virtual;</span>
+ 1611 |     | <span class='neutral'></span>
+ 1612 |     | <span class='neutral'>    /**</span>
+ 1613 |     | <span class='neutral'>     * @notice</span>
+ 1614 |     | <span class='neutral'>     *  Transfers all `want` from this Strategy to `_newStrategy`.</span>
+ 1615 |     | <span class='neutral'>     *</span>
+ 1616 |     | <span class='neutral'>     *  This may only be called by the Vault.</span>
+ 1617 |     | <span class='neutral'>     * @dev</span>
+ 1618 |     | <span class='neutral'>     * The new Strategy&#39;s Vault must be the same as this Strategy&#39;s Vault.</span>
+ 1619 |     | <span class='neutral'>     *  The migration process should be carefully performed to make sure all</span>
+ 1620 |     | <span class='neutral'>     * the assets are migrated to the new address, which should have never</span>
+ 1621 |     | <span class='neutral'>     * interacted with the vault before.</span>
+ 1622 |     | <span class='neutral'>     * @param _newStrategy The Strategy to migrate to.</span>
+ 1623 |     | <span class='neutral'>     */</span>
+ 1624 |     | <span class='unexecuted'>    function migrate(address _newStrategy) external {</span>
+ 1625 |     | <span class='unexecuted'>        require(msg.sender == address(vault));</span>
+ 1626 |     | <span class='unexecuted'>        require(BaseStrategy(_newStrategy).vault() == vault);</span>
+ 1627 |     | <span class='unexecuted'>        prepareMigration(_newStrategy);</span>
+ 1628 |     | <span class='unexecuted'>        want.safeTransfer(_newStrategy, want.balanceOf(address(this)));</span>
+ 1629 |     | <span class='neutral'>    }</span>
+ 1630 |     | <span class='neutral'></span>
+ 1631 |     | <span class='neutral'>    /**</span>
+ 1632 |     | <span class='neutral'>     * @notice</span>
+ 1633 |     | <span class='neutral'>     *  Activates emergency exit. Once activated, the Strategy will exit its</span>
+ 1634 |     | <span class='neutral'>     *  position upon the next harvest, depositing all funds into the Vault as</span>
+ 1635 |     | <span class='neutral'>     *  quickly as is reasonable given on-chain conditions.</span>
+ 1636 |     | <span class='neutral'>     *</span>
+ 1637 |     | <span class='neutral'>     *  This may only be called by governance or the strategist.</span>
+ 1638 |     | <span class='neutral'>     * @dev</span>
+ 1639 |     | <span class='neutral'>     *  See `vault.setEmergencyShutdown()` and `harvest()` for further details.</span>
+ 1640 |     | <span class='neutral'>     */</span>
+ 1641 |     | <span class='unexecuted'>    function setEmergencyExit() external onlyEmergencyAuthorized {</span>
+ 1642 |     | <span class='unexecuted'>        emergencyExit = true;</span>
+ 1643 |     | <span class='unexecuted'>        vault.revokeStrategy();</span>
+ 1644 |     | <span class='neutral'></span>
+ 1645 |     | <span class='unexecuted'>        emit EmergencyExitEnabled();</span>
+ 1646 |     | <span class='neutral'>    }</span>
+ 1647 |     | <span class='neutral'></span>
+ 1648 |     | <span class='neutral'>    /**</span>
+ 1649 |     | <span class='neutral'>     * Override this to add all tokens/tokenized positions this contract</span>
+ 1650 |     | <span class='neutral'>     * manages on a *persistent* basis (e.g. not just for swapping back to</span>
+ 1651 |     | <span class='neutral'>     * want ephemerally).</span>
+ 1652 |     | <span class='neutral'>     *</span>
+ 1653 |     | <span class='neutral'>     * NOTE: Do *not* include `want`, already included in `sweep` below.</span>
+ 1654 |     | <span class='neutral'>     *</span>
+ 1655 |     | <span class='neutral'>     * Example:</span>
+ 1656 |     | <span class='neutral'>     * ```</span>
+ 1657 |     | <span class='neutral'>     *    function protectedTokens() internal override view returns (address[] memory) {</span>
+ 1658 |     | <span class='neutral'>     *      address[] memory protected = new address[](3);</span>
+ 1659 |     | <span class='neutral'>     *      protected[0] = tokenA;</span>
+ 1660 |     | <span class='neutral'>     *      protected[1] = tokenB;</span>
+ 1661 |     | <span class='neutral'>     *      protected[2] = tokenC;</span>
+ 1662 |     | <span class='neutral'>     *      return protected;</span>
+ 1663 |     | <span class='neutral'>     *    }</span>
+ 1664 |     | <span class='neutral'>     * ```</span>
+ 1665 |     | <span class='neutral'>     */</span>
+ 1666 |     | <span class='neutral'>    function protectedTokens() internal view virtual returns (address[] memory);</span>
+ 1667 |     | <span class='neutral'></span>
+ 1668 |     | <span class='neutral'>    /**</span>
+ 1669 |     | <span class='neutral'>     * @notice</span>
+ 1670 |     | <span class='neutral'>     *  Removes tokens from this Strategy that are not the type of tokens</span>
+ 1671 |     | <span class='neutral'>     *  managed by this Strategy. This may be used in case of accidentally</span>
+ 1672 |     | <span class='neutral'>     *  sending the wrong kind of token to this Strategy.</span>
+ 1673 |     | <span class='neutral'>     *</span>
+ 1674 |     | <span class='neutral'>     *  Tokens will be sent to `governance()`.</span>
+ 1675 |     | <span class='neutral'>     *</span>
+ 1676 |     | <span class='neutral'>     *  This will fail if an attempt is made to sweep `want`, or any tokens</span>
+ 1677 |     | <span class='neutral'>     *  that are protected by this Strategy.</span>
+ 1678 |     | <span class='neutral'>     *</span>
+ 1679 |     | <span class='neutral'>     *  This may only be called by governance.</span>
+ 1680 |     | <span class='neutral'>     * @dev</span>
+ 1681 |     | <span class='neutral'>     *  Implement `protectedTokens()` to specify any additional tokens that</span>
+ 1682 |     | <span class='neutral'>     *  should be protected from sweeping in addition to `want`.</span>
+ 1683 |     | <span class='neutral'>     * @param _token The token to transfer out of this vault.</span>
+ 1684 |     | <span class='neutral'>     */</span>
+ 1685 |     | <span class='unexecuted'>    function sweep(address _token) external onlyGovernance {</span>
+ 1686 |     | <span class='unexecuted'>        require(_token != address(want), &quot;!want&quot;);</span>
+ 1687 |     | <span class='unexecuted'>        require(_token != address(vault), &quot;!shares&quot;);</span>
+ 1688 |     | <span class='neutral'></span>
+ 1689 |     | <span class='unexecuted'>        address[] memory _protectedTokens = protectedTokens();</span>
+ 1690 |     | <span class='unexecuted'>        for (uint256 i; i &lt; _protectedTokens.length; i++) require(_token != _protectedTokens[i], &quot;!protected&quot;);</span>
+ 1691 |     | <span class='neutral'></span>
+ 1692 |     | <span class='unexecuted'>        IERC20(_token).safeTransfer(governance(), IERC20(_token).balanceOf(address(this)));</span>
+ 1693 |     | <span class='neutral'>    }</span>
+ 1694 |     | <span class='neutral'>}</span>
+ 1695 |     | <span class='neutral'></span>
+ 1696 |     | <span class='neutral'>// Part: StrategyConvexBase</span>
+ 1697 |     | <span class='neutral'></span>
+ 1698 |     | <span class='neutral'>abstract contract StrategyConvexBase is BaseStrategy {</span>
+ 1699 |     | <span class='neutral'>    using SafeERC20 for IERC20;</span>
+ 1700 |     | <span class='neutral'>    using Address for address;</span>
+ 1701 |     | <span class='neutral'>    using SafeMath for uint256;</span>
+ 1702 |     | <span class='neutral'></span>
+ 1703 |     | <span class='neutral'>    /* ========== STATE VARIABLES ========== */</span>
+ 1704 |     | <span class='neutral'>    // these should stay the same across different wants.</span>
+ 1705 |     | <span class='neutral'></span>
+ 1706 |     | <span class='neutral'>    // convex stuff</span>
+ 1707 |     | <span class='unexecuted'>    address public constant depositContract =</span>
+ 1708 |     | <span class='unexecuted'>        0xF403C135812408BFbE8713b5A23a04b3D48AAE31; // this is the deposit contract that all pools use, aka booster</span>
+ 1709 |     | <span class='unexecuted'>    address public rewardsContract; // This is unique to each curve pool</span>
+ 1710 |     | <span class='unexecuted'>    uint256 public pid; // this is unique to each pool</span>
+ 1711 |     | <span class='neutral'></span>
+ 1712 |     | <span class='neutral'>    // keepCRV stuff</span>
+ 1713 |     | <span class='unexecuted'>    uint256 public keepCRV; // the percentage of CRV we re-lock for boost (in basis points)</span>
+ 1714 |     | <span class='unexecuted'>    address public constant voter = 0xF147b8125d2ef93FB6965Db97D6746952a133934; // Yearn&#39;s veCRV voter, we send some extra CRV here</span>
+ 1715 |     | <span class='unexecuted'>    uint256 internal constant FEE_DENOMINATOR = 10000; // this means all of our fee values are in bips</span>
+ 1716 |     | <span class='neutral'></span>
+ 1717 |     | <span class='neutral'>    // Swap stuff</span>
+ 1718 |     | <span class='neutral'>    address internal constant sushiswap =</span>
+ 1719 |     | <span class='unexecuted'>        0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F; // default to sushiswap, more CRV and CVX liquidity there</span>
+ 1720 |     | <span class='unexecuted'>    address[] public convexTokenPath; // path to sell CVX</span>
+ 1721 |     | <span class='neutral'></span>
+ 1722 |     | <span class='neutral'>    IERC20 internal constant crv =</span>
+ 1723 |     | <span class='unexecuted'>        IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);</span>
+ 1724 |     | <span class='neutral'>    IERC20 internal constant convexToken =</span>
+ 1725 |     | <span class='unexecuted'>        IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);</span>
+ 1726 |     | <span class='neutral'>    IERC20 internal constant weth =</span>
+ 1727 |     | <span class='unexecuted'>        IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);</span>
+ 1728 |     | <span class='neutral'></span>
+ 1729 |     | <span class='neutral'>    // keeper stuff</span>
+ 1730 |     | <span class='unexecuted'>    uint256 public harvestProfitNeeded; // we use this to set our dollar target (in USDT) for harvest sells</span>
+ 1731 |     | <span class='neutral'>    bool internal forceHarvestTriggerOnce; // only set this to true when we want to trigger our keepers to harvest for us</span>
+ 1732 |     | <span class='neutral'></span>
+ 1733 |     | <span class='neutral'>    string internal stratName; // we use this to be able to adjust our strategy&#39;s name</span>
+ 1734 |     | <span class='neutral'></span>
+ 1735 |     | <span class='neutral'>    // convex-specific variables</span>
+ 1736 |     | <span class='unexecuted'>    bool public claimRewards; // boolean if we should always claim rewards when withdrawing, usually withdrawAndUnwrap (generally this should be false)</span>
+ 1737 |     | <span class='neutral'></span>
+ 1738 |     | <span class='neutral'>    /* ========== CONSTRUCTOR ========== */</span>
+ 1739 |     | <span class='neutral'></span>
+ 1740 |     | <span class='neutral'>    constructor(address _vault) public BaseStrategy(_vault) {}</span>
+ 1741 |     | <span class='neutral'></span>
+ 1742 |     | <span class='neutral'>    /* ========== VIEWS ========== */</span>
+ 1743 |     | <span class='neutral'></span>
+ 1744 |     | <span class='unexecuted'>    function name() external view override returns (string memory) {</span>
+ 1745 |     | <span class='unexecuted'>        return stratName;</span>
+ 1746 |     | <span class='neutral'>    }</span>
+ 1747 |     | <span class='neutral'></span>
+ 1748 |     | <span class='unexecuted'>    function stakedBalance() public view returns (uint256) {</span>
+ 1749 |     | <span class='neutral'>        // how much want we have staked in Convex</span>
+ 1750 |     | <span class='unexecuted'>        return IConvexRewards(rewardsContract).balanceOf(address(this));</span>
+ 1751 |     | <span class='neutral'>    }</span>
+ 1752 |     | <span class='neutral'></span>
+ 1753 |     | <span class='unexecuted'>    function balanceOfWant() public view returns (uint256) {</span>
+ 1754 |     | <span class='neutral'>        // balance of want sitting in our strategy</span>
+ 1755 |     | <span class='unexecuted'>        return want.balanceOf(address(this));</span>
+ 1756 |     | <span class='neutral'>    }</span>
+ 1757 |     | <span class='neutral'></span>
+ 1758 |     | <span class='unexecuted'>    function claimableBalance() public view returns (uint256) {</span>
+ 1759 |     | <span class='neutral'>        // how much CRV we can claim from the staking contract</span>
+ 1760 |     | <span class='unexecuted'>        return IConvexRewards(rewardsContract).earned(address(this));</span>
+ 1761 |     | <span class='neutral'>    }</span>
+ 1762 |     | <span class='neutral'></span>
+ 1763 |     | <span class='unexecuted'>    function estimatedTotalAssets() public view override returns (uint256) {</span>
+ 1764 |     | <span class='unexecuted'>        return balanceOfWant().add(stakedBalance());</span>
+ 1765 |     | <span class='neutral'>    }</span>
+ 1766 |     | <span class='neutral'></span>
+ 1767 |     | <span class='neutral'>    /* ========== CONSTANT FUNCTIONS ========== */</span>
+ 1768 |     | <span class='neutral'>    // these should stay the same across different wants.</span>
+ 1769 |     | <span class='neutral'></span>
+ 1770 |     | <span class='unexecuted'>    function adjustPosition(uint256 _debtOutstanding) internal override {</span>
+ 1771 |     | <span class='unexecuted'>        if (emergencyExit) {</span>
+ 1772 |     | <span class='unexecuted'>            return;</span>
+ 1773 |     | <span class='neutral'>        }</span>
+ 1774 |     | <span class='neutral'>        // Send all of our Curve pool tokens to be deposited</span>
+ 1775 |     | <span class='unexecuted'>        uint256 _toInvest = balanceOfWant();</span>
+ 1776 |     | <span class='neutral'>        // deposit into convex and stake immediately but only if we have something to invest</span>
+ 1777 |     | <span class='unexecuted'>        if (_toInvest &gt; 0) {</span>
+ 1778 |     | <span class='unexecuted'>            IConvexDeposit(depositContract).deposit(pid, _toInvest, true);</span>
+ 1779 |     | <span class='neutral'>        }</span>
+ 1780 |     | <span class='neutral'>    }</span>
+ 1781 |     | <span class='neutral'></span>
+ 1782 |     | <span class='unexecuted'>    function liquidatePosition(uint256 _amountNeeded)</span>
+ 1783 |     | <span class='neutral'>        internal</span>
+ 1784 |     | <span class='neutral'>        override</span>
+ 1785 |     | <span class='unexecuted'>        returns (uint256 _liquidatedAmount, uint256 _loss)</span>
+ 1786 |     | <span class='neutral'>    {</span>
+ 1787 |     | <span class='unexecuted'>        uint256 _wantBal = balanceOfWant();</span>
+ 1788 |     | <span class='unexecuted'>        if (_amountNeeded &gt; _wantBal) {</span>
+ 1789 |     | <span class='unexecuted'>            uint256 _stakedBal = stakedBalance();</span>
+ 1790 |     | <span class='unexecuted'>            if (_stakedBal &gt; 0) {</span>
+ 1791 |     | <span class='unexecuted'>                IConvexRewards(rewardsContract).withdrawAndUnwrap(</span>
+ 1792 |     | <span class='unexecuted'>                    Math.min(_stakedBal, _amountNeeded.sub(_wantBal)),</span>
+ 1793 |     | <span class='unexecuted'>                    claimRewards</span>
+ 1794 |     | <span class='neutral'>                );</span>
+ 1795 |     | <span class='neutral'>            }</span>
+ 1796 |     | <span class='unexecuted'>            uint256 _withdrawnBal = balanceOfWant();</span>
+ 1797 |     | <span class='unexecuted'>            _liquidatedAmount = Math.min(_amountNeeded, _withdrawnBal);</span>
+ 1798 |     | <span class='unexecuted'>            _loss = _amountNeeded.sub(_liquidatedAmount);</span>
+ 1799 |     | <span class='neutral'>        } else {</span>
+ 1800 |     | <span class='neutral'>            // we have enough balance to cover the liquidation available</span>
+ 1801 |     | <span class='unexecuted'>            return (_amountNeeded, 0);</span>
+ 1802 |     | <span class='neutral'>        }</span>
+ 1803 |     | <span class='neutral'>    }</span>
+ 1804 |     | <span class='neutral'></span>
+ 1805 |     | <span class='neutral'>    // fire sale, get rid of it all!</span>
+ 1806 |     | <span class='unexecuted'>    function liquidateAllPositions() internal override returns (uint256) {</span>
+ 1807 |     | <span class='unexecuted'>        uint256 _stakedBal = stakedBalance();</span>
+ 1808 |     | <span class='unexecuted'>        if (_stakedBal &gt; 0) {</span>
+ 1809 |     | <span class='neutral'>            // don&#39;t bother withdrawing zero</span>
+ 1810 |     | <span class='unexecuted'>            IConvexRewards(rewardsContract).withdrawAndUnwrap(</span>
+ 1811 |     | <span class='unexecuted'>                _stakedBal,</span>
+ 1812 |     | <span class='unexecuted'>                claimRewards</span>
+ 1813 |     | <span class='neutral'>            );</span>
+ 1814 |     | <span class='neutral'>        }</span>
+ 1815 |     | <span class='unexecuted'>        return balanceOfWant();</span>
+ 1816 |     | <span class='neutral'>    }</span>
+ 1817 |     | <span class='neutral'></span>
+ 1818 |     | <span class='neutral'>    // in case we need to exit into the convex deposit token, this will allow us to do that</span>
+ 1819 |     | <span class='neutral'>    // make sure to check claimRewards before this step if needed</span>
+ 1820 |     | <span class='neutral'>    // plan to have gov sweep convex deposit tokens from strategy after this</span>
+ 1821 |     | <span class='unexecuted'>    function withdrawToConvexDepositTokens() external onlyAuthorized {</span>
+ 1822 |     | <span class='unexecuted'>        uint256 _stakedBal = stakedBalance();</span>
+ 1823 |     | <span class='unexecuted'>        if (_stakedBal &gt; 0) {</span>
+ 1824 |     | <span class='unexecuted'>            IConvexRewards(rewardsContract).withdraw(_stakedBal, claimRewards);</span>
+ 1825 |     | <span class='neutral'>        }</span>
+ 1826 |     | <span class='neutral'>    }</span>
+ 1827 |     | <span class='neutral'></span>
+ 1828 |     | <span class='neutral'>    // we don&#39;t want for these tokens to be swept out. We allow gov to sweep out cvx vault tokens; we would only be holding these if things were really, really rekt.</span>
+ 1829 |     | <span class='unexecuted'>    function protectedTokens()</span>
+ 1830 |     | <span class='neutral'>        internal</span>
+ 1831 |     | <span class='neutral'>        view</span>
+ 1832 |     | <span class='neutral'>        override</span>
+ 1833 |     | <span class='neutral'>        returns (address[] memory)</span>
+ 1834 |     | <span class='neutral'>    {</span>
+ 1835 |     | <span class='unexecuted'>        return new address[](0);</span>
+ 1836 |     | <span class='neutral'>    }</span>
+ 1837 |     | <span class='neutral'></span>
+ 1838 |     | <span class='neutral'>    /* ========== SETTERS ========== */</span>
+ 1839 |     | <span class='neutral'></span>
+ 1840 |     | <span class='neutral'>    // These functions are useful for setting parameters of the strategy that may need to be adjusted.</span>
+ 1841 |     | <span class='neutral'></span>
+ 1842 |     | <span class='neutral'>    // Set the amount of CRV to be locked in Yearn&#39;s veCRV voter from each harvest. Default is 10%.</span>
+ 1843 |     | <span class='unexecuted'>    function setKeepCRV(uint256 _keepCRV) external onlyAuthorized {</span>
+ 1844 |     | <span class='unexecuted'>        require(_keepCRV &lt;= 10_000);</span>
+ 1845 |     | <span class='unexecuted'>        keepCRV = _keepCRV;</span>
+ 1846 |     | <span class='neutral'>    }</span>
+ 1847 |     | <span class='neutral'></span>
+ 1848 |     | <span class='neutral'>    // We usually don&#39;t need to claim rewards on withdrawals, but might change our mind for migrations etc</span>
+ 1849 |     | <span class='unexecuted'>    function setClaimRewards(bool _claimRewards) external onlyAuthorized {</span>
+ 1850 |     | <span class='unexecuted'>        claimRewards = _claimRewards;</span>
+ 1851 |     | <span class='neutral'>    }</span>
+ 1852 |     | <span class='neutral'></span>
+ 1853 |     | <span class='neutral'>    // This determines when we tell our keepers to harvest based on profit. this is how much in USDT we need to make. remember, 6 decimals!</span>
+ 1854 |     | <span class='unexecuted'>    function setHarvestProfitNeeded(uint256 _harvestProfitNeeded)</span>
+ 1855 |     | <span class='neutral'>        external</span>
+ 1856 |     | <span class='neutral'>        onlyAuthorized</span>
+ 1857 |     | <span class='neutral'>    {</span>
+ 1858 |     | <span class='unexecuted'>        harvestProfitNeeded = _harvestProfitNeeded;</span>
+ 1859 |     | <span class='neutral'>    }</span>
+ 1860 |     | <span class='neutral'></span>
+ 1861 |     | <span class='neutral'>    // This allows us to manually harvest with our keeper as needed</span>
+ 1862 |     | <span class='unexecuted'>    function setForceHarvestTriggerOnce(bool _forceHarvestTriggerOnce)</span>
+ 1863 |     | <span class='neutral'>        external</span>
+ 1864 |     | <span class='neutral'>        onlyAuthorized</span>
+ 1865 |     | <span class='neutral'>    {</span>
+ 1866 |     | <span class='unexecuted'>        forceHarvestTriggerOnce = _forceHarvestTriggerOnce;</span>
+ 1867 |     | <span class='neutral'>    }</span>
+ 1868 |     | <span class='neutral'>}</span>
+ 1869 |     | <span class='neutral'></span>
+ 1870 |     | <span class='neutral'>// File: StrategyConvexMIMUST.sol</span>
+ 1871 |     | <span class='unexecuted'></span>
+ 1872 |     | <span class='neutral'>contract StrategyConvexMIMUST is StrategyConvexBase {</span>
+ 1873 |     | <span class='neutral'>    /* ========== STATE VARIABLES ========== */</span>
+ 1874 |     | <span class='neutral'>    // these will likely change across different wants.</span>
+ 1875 |     | <span class='neutral'></span>
+ 1876 |     | <span class='unexecuted'>    ICurveFi public curve; // Curve Pool, need this for buying more pool tokens</span>
+ 1877 |     | <span class='unexecuted'>    uint256 public maxGasPrice; // this is the max gas price we want our keepers to pay for harvests/tends in gwei</span>
+ 1878 |     | <span class='neutral'></span>
+ 1879 |     | <span class='neutral'>    // Uniswap stuff</span>
+ 1880 |     | <span class='neutral'>    IOracle internal constant oracle =</span>
+ 1881 |     | <span class='unexecuted'>        IOracle(0x0F1f5A87f99f0918e6C81F16E59F3518698221Ff); // this is only needed for strats that use uniV3 for swaps</span>
+ 1882 |     | <span class='neutral'>    address internal constant uniswapv3 =</span>
+ 1883 |     | <span class='unexecuted'>        0xE592427A0AEce92De3Edee1F18E0157C05861564;</span>
+ 1884 |     | <span class='neutral'>    IERC20 internal constant usdt = // need this for our expected harvest amount</span>
+ 1885 |     | <span class='unexecuted'>        IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);</span>
+ 1886 |     | <span class='neutral'>    IERC20 internal constant usdc =</span>
+ 1887 |     | <span class='unexecuted'>        IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);</span>
+ 1888 |     | <span class='neutral'>    IERC20 internal constant ust =</span>
+ 1889 |     | <span class='unexecuted'>        IERC20(0xa47c8bf37f92aBed4A126BDA807A7b7498661acD);</span>
+ 1890 |     | <span class='neutral'></span>
+ 1891 |     | <span class='neutral'>    /* ========== CONSTRUCTOR ========== */</span>
+ 1892 |     | <span class='neutral'></span>
+ 1893 |     | <span class='neutral'>    constructor(</span>
+ 1894 |     | <span class='neutral'>        address _vault,</span>
+ 1895 |     | <span class='neutral'>        uint256 _pid,</span>
+ 1896 |     | <span class='neutral'>        address _curvePool,</span>
+ 1897 |     | <span class='neutral'>        string memory _name</span>
+ 1898 |     | <span class='neutral'>    ) public StrategyConvexBase(_vault) {</span>
+ 1899 |     | <span class='neutral'>        // You can set these parameters on deployment to whatever you want</span>
+ 1900 |     | <span class='neutral'>        maxReportDelay = 7 days; // 7 days in seconds, if we hit this then harvestTrigger = True</span>
+ 1901 |     | <span class='neutral'>        debtThreshold = 1 * 1e6; // we shouldn&#39;t ever have debt, but set a bit of a buffer</span>
+ 1902 |     | <span class='neutral'>        profitFactor = 1_000_000; // in this strategy, profitFactor is only used for telling keep3rs when to move funds from vault to strategy</span>
+ 1903 |     | <span class='neutral'>        harvestProfitNeeded = 80_000 * 1e6; // this is how much in USDT we need to make. remember, 6 decimals!</span>
+ 1904 |     | <span class='neutral'>        healthCheck = 0xDDCea799fF1699e98EDF118e0629A974Df7DF012; // health.ychad.eth</span>
+ 1905 |     | <span class='neutral'></span>
+ 1906 |     | <span class='neutral'>        // want = Curve LP</span>
+ 1907 |     | <span class='neutral'>        want.approve(address(depositContract), type(uint256).max);</span>
+ 1908 |     | <span class='neutral'>        crv.approve(sushiswap, type(uint256).max);</span>
+ 1909 |     | <span class='neutral'>        convexToken.approve(sushiswap, type(uint256).max);</span>
+ 1910 |     | <span class='neutral'></span>
+ 1911 |     | <span class='neutral'>        // set our keepCRV</span>
+ 1912 |     | <span class='neutral'>        keepCRV = 1000;</span>
+ 1913 |     | <span class='neutral'></span>
+ 1914 |     | <span class='neutral'>        // this is the pool specific to this vault, used for depositing</span>
+ 1915 |     | <span class='neutral'>        curve = ICurveFi(_curvePool);</span>
+ 1916 |     | <span class='neutral'></span>
+ 1917 |     | <span class='neutral'>        // setup our rewards contract</span>
+ 1918 |     | <span class='neutral'>        pid = _pid; // this is the pool ID on convex, we use this to determine what the reweardsContract address is</span>
+ 1919 |     | <span class='neutral'>        address lptoken;</span>
+ 1920 |     | <span class='neutral'>        (lptoken, , , rewardsContract, , ) = IConvexDeposit(depositContract)</span>
+ 1921 |     | <span class='neutral'>            .poolInfo(_pid);</span>
+ 1922 |     | <span class='neutral'></span>
+ 1923 |     | <span class='neutral'>        // check that our LP token based on our pid matches our want</span>
+ 1924 |     | <span class='neutral'>        require(address(lptoken) == address(want));</span>
+ 1925 |     | <span class='neutral'></span>
+ 1926 |     | <span class='neutral'>        // set our strategy&#39;s name</span>
+ 1927 |     | <span class='neutral'>        stratName = _name;</span>
+ 1928 |     | <span class='neutral'></span>
+ 1929 |     | <span class='neutral'>        // these are our approvals and path specific to this contract</span>
+ 1930 |     | <span class='neutral'>        ust.approve(address(curve), type(uint256).max);</span>
+ 1931 |     | <span class='neutral'>        weth.approve(uniswapv3, type(uint256).max);</span>
+ 1932 |     | <span class='neutral'></span>
+ 1933 |     | <span class='neutral'>        // set our max gas price</span>
+ 1934 |     | <span class='neutral'>        maxGasPrice = 100 * 1e9;</span>
+ 1935 |     | <span class='neutral'>    }</span>
+ 1936 |     | <span class='neutral'></span>
+ 1937 |     | <span class='neutral'>    /* ========== VARIABLE FUNCTIONS ========== */</span>
+ 1938 |     | <span class='neutral'>    // these will likely change across different wants.</span>
+ 1939 |     | <span class='neutral'></span>
+ 1940 |     | <span class='unexecuted'>    function prepareReturn(uint256 _debtOutstanding)</span>
+ 1941 |     | <span class='neutral'>        internal</span>
+ 1942 |     | <span class='neutral'>        override</span>
+ 1943 |     | <span class='neutral'>        returns (</span>
+ 1944 |     | <span class='unexecuted'>            uint256 _profit,</span>
+ 1945 |     | <span class='unexecuted'>            uint256 _loss,</span>
+ 1946 |     | <span class='unexecuted'>            uint256 _debtPayment</span>
+ 1947 |     | <span class='neutral'>        )</span>
+ 1948 |     | <span class='neutral'>    {</span>
+ 1949 |     | <span class='neutral'>        // if we have anything staked, then harvest CRV and CVX from the rewards contract</span>
+ 1950 |     | <span class='unexecuted'>        if (claimableBalance() &gt; 0) {</span>
+ 1951 |     | <span class='neutral'>            // this claims our CRV, CVX, and any extra tokens like SNX or ANKR. set to false if these tokens don&#39;t exist, true if they do.</span>
+ 1952 |     | <span class='unexecuted'>            IConvexRewards(rewardsContract).getReward(address(this), false);</span>
+ 1953 |     | <span class='neutral'></span>
+ 1954 |     | <span class='unexecuted'>            uint256 crvBalance = crv.balanceOf(address(this));</span>
+ 1955 |     | <span class='unexecuted'>            uint256 convexBalance = convexToken.balanceOf(address(this));</span>
+ 1956 |     | <span class='neutral'></span>
+ 1957 |     | <span class='unexecuted'>            uint256 _sendToVoter = crvBalance.mul(keepCRV).div(FEE_DENOMINATOR);</span>
+ 1958 |     | <span class='unexecuted'>            if (_sendToVoter &gt; 0) {</span>
+ 1959 |     | <span class='unexecuted'>                crv.safeTransfer(voter, _sendToVoter);</span>
+ 1960 |     | <span class='neutral'>            }</span>
+ 1961 |     | <span class='unexecuted'>            uint256 crvRemainder = crvBalance.sub(_sendToVoter);</span>
+ 1962 |     | <span class='neutral'></span>
+ 1963 |     | <span class='unexecuted'>            if (crvRemainder &gt; 0) {</span>
+ 1964 |     | <span class='unexecuted'>                _sellCrvforWETH(crvRemainder);</span>
+ 1965 |     | <span class='neutral'>            }</span>
+ 1966 |     | <span class='neutral'></span>
+ 1967 |     | <span class='unexecuted'>            if (convexBalance &gt; 0) {</span>
+ 1968 |     | <span class='unexecuted'>                _sellConvexforWETH(convexBalance);</span>
+ 1969 |     | <span class='neutral'>            }</span>
+ 1970 |     | <span class='neutral'></span>
+ 1971 |     | <span class='neutral'>            // convert our WETH to EURt, but don&#39;t want to swap dust</span>
+ 1972 |     | <span class='unexecuted'>            uint256 _wethBalance = weth.balanceOf(address(this));</span>
+ 1973 |     | <span class='unexecuted'>            uint256 _ustBalance = 0;</span>
+ 1974 |     | <span class='unexecuted'>            if (_wethBalance &gt; 0) {</span>
+ 1975 |     | <span class='unexecuted'>                _ustBalance = _sellWethForUST(_wethBalance);</span>
+ 1976 |     | <span class='neutral'>            }</span>
+ 1977 |     | <span class='neutral'></span>
+ 1978 |     | <span class='neutral'>            // deposit our EURt to Curve if we have any</span>
+ 1979 |     | <span class='unexecuted'>            if (_ustBalance &gt; 0) {</span>
+ 1980 |     | <span class='unexecuted'>                curve.add_liquidity([0, _ustBalance], 0);</span>
+ 1981 |     | <span class='neutral'>            }</span>
+ 1982 |     | <span class='neutral'>        }</span>
+ 1983 |     | <span class='neutral'></span>
+ 1984 |     | <span class='neutral'>        // debtOustanding will only be &gt; 0 in the event of revoking or if we need to rebalance from a withdrawal or lowering the debtRatio</span>
+ 1985 |     | <span class='unexecuted'>        if (_debtOutstanding &gt; 0) {</span>
+ 1986 |     | <span class='unexecuted'>            uint256 _stakedBal = stakedBalance();</span>
+ 1987 |     | <span class='unexecuted'>            if (_stakedBal &gt; 0) {</span>
+ 1988 |     | <span class='unexecuted'>                IConvexRewards(rewardsContract).withdrawAndUnwrap(</span>
+ 1989 |     | <span class='unexecuted'>                    Math.min(_stakedBal, _debtOutstanding),</span>
+ 1990 |     | <span class='unexecuted'>                    claimRewards</span>
+ 1991 |     | <span class='neutral'>                );</span>
+ 1992 |     | <span class='neutral'>            }</span>
+ 1993 |     | <span class='unexecuted'>            uint256 _withdrawnBal = balanceOfWant();</span>
+ 1994 |     | <span class='unexecuted'>            _debtPayment = Math.min(_debtOutstanding, _withdrawnBal);</span>
+ 1995 |     | <span class='neutral'>        }</span>
+ 1996 |     | <span class='neutral'></span>
+ 1997 |     | <span class='neutral'>        // serious loss should never happen, but if it does (for instance, if Curve is hacked), let&#39;s record it accurately</span>
+ 1998 |     | <span class='unexecuted'>        uint256 assets = estimatedTotalAssets();</span>
+ 1999 |     | <span class='unexecuted'>        uint256 debt = vault.strategies(address(this)).totalDebt;</span>
+ 2000 |     | <span class='neutral'></span>
+ 2001 |     | <span class='neutral'>        // if assets are greater than debt, things are working great!</span>
+ 2002 |     | <span class='unexecuted'>        if (assets &gt; debt) {</span>
+ 2003 |     | <span class='unexecuted'>            _profit = assets.sub(debt);</span>
+ 2004 |     | <span class='unexecuted'>            uint256 _wantBal = balanceOfWant();</span>
+ 2005 |     | <span class='unexecuted'>            if (_profit.add(_debtPayment) &gt; _wantBal) {</span>
+ 2006 |     | <span class='neutral'>                // this should only be hit following donations to strategy</span>
+ 2007 |     | <span class='unexecuted'>                liquidateAllPositions();</span>
+ 2008 |     | <span class='neutral'>            }</span>
+ 2009 |     | <span class='neutral'>        }</span>
+ 2010 |     | <span class='neutral'>        // if assets are less than debt, we are in trouble</span>
+ 2011 |     | <span class='neutral'>        else {</span>
+ 2012 |     | <span class='unexecuted'>            _loss = debt.sub(assets);</span>
+ 2013 |     | <span class='neutral'>        }</span>
+ 2014 |     | <span class='neutral'></span>
+ 2015 |     | <span class='neutral'>        // we&#39;re done harvesting, so reset our trigger if we used it</span>
+ 2016 |     | <span class='unexecuted'>        forceHarvestTriggerOnce = false;</span>
+ 2017 |     | <span class='neutral'>    }</span>
+ 2018 |     | <span class='neutral'></span>
+ 2019 |     | <span class='neutral'>    // Sells our harvested CRV into the selected output.</span>
+ 2020 |     | <span class='unexecuted'>    function _sellCrvforWETH(uint256 _amount) internal {</span>
+ 2021 |     | <span class='unexecuted'>        address[] memory crvPath = new address[](2);</span>
+ 2022 |     | <span class='unexecuted'>        crvPath[0] = address(crv);</span>
+ 2023 |     | <span class='unexecuted'>        crvPath[1] = address(weth);</span>
+ 2024 |     | <span class='unexecuted'>        IUniswapV2Router02(sushiswap).swapExactTokensForTokens(</span>
+ 2025 |     | <span class='unexecuted'>            _amount,</span>
+ 2026 |     | <span class='unexecuted'>            uint256(0),</span>
+ 2027 |     | <span class='unexecuted'>            crvPath,</span>
+ 2028 |     | <span class='unexecuted'>            address(this),</span>
+ 2029 |     | <span class='unexecuted'>            block.timestamp</span>
+ 2030 |     | <span class='neutral'>        );</span>
+ 2031 |     | <span class='neutral'>    }</span>
+ 2032 |     | <span class='neutral'></span>
+ 2033 |     | <span class='neutral'>    // Sells our harvested CVX into the selected output.</span>
+ 2034 |     | <span class='unexecuted'>    function _sellConvexforWETH(uint256 _amount) internal {</span>
+ 2035 |     | <span class='unexecuted'>        address[] memory convexTokenPath = new address[](2);</span>
+ 2036 |     | <span class='unexecuted'>        convexTokenPath[0] = address(convexToken);</span>
+ 2037 |     | <span class='neutral'>        convexTokenPath[1] = address(weth);</span>
+ 2038 |     | <span class='neutral'>        IUniswapV2Router02(sushiswap).swapExactTokensForTokens(</span>
+ 2039 |     | <span class='neutral'>            _amount,</span>
+ 2040 |     | <span class='neutral'>            uint256(0),</span>
+ 2041 |     | <span class='neutral'>            convexTokenPath,</span>
+ 2042 |     | <span class='neutral'>            address(this),</span>
+ 2043 |     | <span class='neutral'>            block.timestamp</span>
+ 2044 |     | <span class='neutral'>        );</span>
+ 2045 |     | <span class='neutral'>    }</span>
+ 2046 |     | <span class='neutral'></span>
+ 2047 |     | <span class='neutral'>    // Sells our WETH for UST</span>
+ 2048 |     | <span class='unexecuted'>    function _sellWethForUST(uint256 _amount) internal returns (uint256) {</span>
+ 2049 |     | <span class='neutral'>        uint256 _eurtOutput =</span>
+ 2050 |     | <span class='unexecuted'>            IUniV3(uniswapv3).exactInput(</span>
+ 2051 |     | <span class='unexecuted'>                IUniV3.ExactInputParams(</span>
+ 2052 |     | <span class='unexecuted'>                    abi.encodePacked(</span>
+ 2053 |     | <span class='neutral'>                        address(weth),</span>
+ 2054 |     | <span class='unexecuted'>                        uint24(500),</span>
+ 2055 |     | <span class='neutral'>                        address(usdc),</span>
+ 2056 |     | <span class='neutral'>                        uint24(500),</span>
+ 2057 |     | <span class='neutral'>                        address(ust)</span>
+ 2058 |     | <span class='neutral'>                    ),</span>
+ 2059 |     | <span class='unexecuted'>                    address(this),</span>
+ 2060 |     | <span class='unexecuted'>                    block.timestamp,</span>
+ 2061 |     | <span class='unexecuted'>                    _amount,</span>
+ 2062 |     | <span class='unexecuted'>                    uint256(1)</span>
+ 2063 |     | <span class='neutral'>                )</span>
+ 2064 |     | <span class='neutral'>            );</span>
+ 2065 |     | <span class='neutral'>        return _eurtOutput;</span>
+ 2066 |     | <span class='neutral'>    }</span>
+ 2067 |     | <span class='neutral'></span>
+ 2068 |     | <span class='neutral'>    // migrate our want token to a new strategy if needed, make sure to check claimRewards first</span>
+ 2069 |     | <span class='neutral'>    // also send over any CRV or CVX that is claimed; for migrations we definitely want to claim</span>
+ 2070 |     | <span class='unexecuted'>    function prepareMigration(address _newStrategy) internal override {</span>
+ 2071 |     | <span class='unexecuted'>        uint256 _stakedBal = stakedBalance();</span>
+ 2072 |     | <span class='unexecuted'>        if (_stakedBal &gt; 0) {</span>
+ 2073 |     | <span class='unexecuted'>            IConvexRewards(rewardsContract).withdrawAndUnwrap(</span>
+ 2074 |     | <span class='unexecuted'>                _stakedBal,</span>
+ 2075 |     | <span class='unexecuted'>                claimRewards</span>
+ 2076 |     | <span class='neutral'>            );</span>
+ 2077 |     | <span class='neutral'>        }</span>
+ 2078 |     | <span class='unexecuted'>        crv.safeTransfer(_newStrategy, crv.balanceOf(address(this)));</span>
+ 2079 |     | <span class='unexecuted'>        convexToken.safeTransfer(</span>
+ 2080 |     | <span class='unexecuted'>            _newStrategy,</span>
+ 2081 |     | <span class='unexecuted'>            convexToken.balanceOf(address(this))</span>
+ 2082 |     | <span class='neutral'>        );</span>
+ 2083 |     | <span class='neutral'>    }</span>
+ 2084 |     | <span class='neutral'></span>
+ 2085 |     | <span class='neutral'>    /* ========== KEEP3RS ========== */</span>
+ 2086 |     | <span class='neutral'></span>
+ 2087 |     | <span class='unexecuted'>    function harvestTrigger(uint256 callCostinEth)</span>
+ 2088 |     | <span class='neutral'>        public</span>
+ 2089 |     | <span class='neutral'>        view</span>
+ 2090 |     | <span class='neutral'>        override</span>
+ 2091 |     | <span class='unexecuted'>        returns (bool)</span>
+ 2092 |     | <span class='neutral'>    {</span>
+ 2093 |     | <span class='neutral'>        // trigger if we want to manually harvest</span>
+ 2094 |     | <span class='unexecuted'>        if (forceHarvestTriggerOnce) {</span>
+ 2095 |     | <span class='unexecuted'>            return true;</span>
+ 2096 |     | <span class='neutral'>        }</span>
+ 2097 |     | <span class='neutral'></span>
+ 2098 |     | <span class='neutral'>        // harvest if we have a profit to claim</span>
+ 2099 |     | <span class='unexecuted'>        if (claimableProfitInUsdt() &gt; harvestProfitNeeded) {</span>
+ 2100 |     | <span class='unexecuted'>            return true;</span>
+ 2101 |     | <span class='neutral'>        }</span>
+ 2102 |     | <span class='neutral'></span>
+ 2103 |     | <span class='neutral'>        // Should not trigger if strategy is not active (no assets and no debtRatio). This means we don&#39;t need to adjust keeper job.</span>
+ 2104 |     | <span class='unexecuted'>        if (!isActive()) {</span>
+ 2105 |     | <span class='unexecuted'>            return false;</span>
+ 2106 |     | <span class='neutral'>        }</span>
+ 2107 |     | <span class='neutral'></span>
+ 2108 |     | <span class='neutral'>        // check if the base fee gas price is higher than we allow</span>
+ 2109 |     | <span class='unexecuted'>        if (readBaseFee() &gt; maxGasPrice) {</span>
+ 2110 |     | <span class='unexecuted'>            return false;</span>
+ 2111 |     | <span class='neutral'>        }</span>
+ 2112 |     | <span class='neutral'></span>
+ 2113 |     | <span class='unexecuted'>        return super.harvestTrigger(callCostinEth);</span>
+ 2114 |     | <span class='neutral'>    }</span>
+ 2115 |     | <span class='neutral'></span>
+ 2116 |     | <span class='unexecuted'>    function readBaseFee() internal view returns (uint256 baseFee) {</span>
+ 2117 |     | <span class='unexecuted'>        IBaseFee _baseFeeOracle =</span>
+ 2118 |     | <span class='unexecuted'>            IBaseFee(0xf8d0Ec04e94296773cE20eFbeeA82e76220cD549);</span>
+ 2119 |     | <span class='unexecuted'>        return _baseFeeOracle.basefee_global();</span>
+ 2120 |     | <span class='neutral'>    }</span>
+ 2121 |     | <span class='neutral'></span>
+ 2122 |     | <span class='neutral'>    // we will need to add rewards token here if we have them</span>
+ 2123 |     | <span class='unexecuted'>    function claimableProfitInUsdt() internal view returns (uint256) {</span>
+ 2124 |     | <span class='neutral'>        // calculations pulled directly from CVX&#39;s contract for minting CVX per CRV claimed</span>
+ 2125 |     | <span class='unexecuted'>        uint256 totalCliffs = 1_000;</span>
+ 2126 |     | <span class='unexecuted'>        uint256 maxSupply = 100 * 1_000_000 * 1e18; // 100mil</span>
+ 2127 |     | <span class='unexecuted'>        uint256 reductionPerCliff = 100_000 * 1e18; // 100,000</span>
+ 2128 |     | <span class='unexecuted'>        uint256 supply = convexToken.totalSupply();</span>
+ 2129 |     | <span class='unexecuted'>        uint256 mintableCvx;</span>
+ 2130 |     | <span class='neutral'></span>
+ 2131 |     | <span class='unexecuted'>        uint256 cliff = supply.div(reductionPerCliff);</span>
+ 2132 |     | <span class='unexecuted'>        uint256 _claimableBal = claimableBalance();</span>
+ 2133 |     | <span class='neutral'>        //mint if below total cliffs</span>
+ 2134 |     | <span class='unexecuted'>        if (cliff &lt; totalCliffs) {</span>
+ 2135 |     | <span class='neutral'>            //for reduction% take inverse of current cliff</span>
+ 2136 |     | <span class='unexecuted'>            uint256 reduction = totalCliffs.sub(cliff);</span>
+ 2137 |     | <span class='neutral'>            //reduce</span>
+ 2138 |     | <span class='unexecuted'>            mintableCvx = _claimableBal.mul(reduction).div(totalCliffs);</span>
+ 2139 |     | <span class='neutral'></span>
+ 2140 |     | <span class='neutral'>            //supply cap check</span>
+ 2141 |     | <span class='unexecuted'>            uint256 amtTillMax = maxSupply.sub(supply);</span>
+ 2142 |     | <span class='unexecuted'>            if (mintableCvx &gt; amtTillMax) {</span>
+ 2143 |     | <span class='unexecuted'>                mintableCvx = amtTillMax;</span>
+ 2144 |     | <span class='neutral'>            }</span>
+ 2145 |     | <span class='neutral'>        }</span>
+ 2146 |     | <span class='neutral'></span>
+ 2147 |     | <span class='unexecuted'>        address[] memory crv_usd_path = new address[](3);</span>
+ 2148 |     | <span class='unexecuted'>        crv_usd_path[0] = address(crv);</span>
+ 2149 |     | <span class='unexecuted'>        crv_usd_path[1] = address(weth);</span>
+ 2150 |     | <span class='unexecuted'>        crv_usd_path[2] = address(usdt);</span>
+ 2151 |     | <span class='neutral'></span>
+ 2152 |     | <span class='unexecuted'>        address[] memory cvx_usd_path = new address[](3);</span>
+ 2153 |     | <span class='unexecuted'>        cvx_usd_path[0] = address(convexToken);</span>
+ 2154 |     | <span class='unexecuted'>        cvx_usd_path[1] = address(weth);</span>
+ 2155 |     | <span class='unexecuted'>        cvx_usd_path[2] = address(usdt);</span>
+ 2156 |     | <span class='neutral'></span>
+ 2157 |     | <span class='unexecuted'>        uint256 crvValue;</span>
+ 2158 |     | <span class='unexecuted'>        if (_claimableBal &gt; 0) {</span>
+ 2159 |     | <span class='unexecuted'>            uint256[] memory crvSwap =</span>
+ 2160 |     | <span class='unexecuted'>                IUniswapV2Router02(sushiswap).getAmountsOut(</span>
+ 2161 |     | <span class='unexecuted'>                    _claimableBal,</span>
+ 2162 |     | <span class='unexecuted'>                    crv_usd_path</span>
+ 2163 |     | <span class='neutral'>                );</span>
+ 2164 |     | <span class='unexecuted'>            crvValue = crvSwap[crvSwap.length - 1];</span>
+ 2165 |     | <span class='neutral'>        }</span>
+ 2166 |     | <span class='neutral'></span>
+ 2167 |     | <span class='unexecuted'>        uint256 cvxValue;</span>
+ 2168 |     | <span class='unexecuted'>        if (mintableCvx &gt; 0) {</span>
+ 2169 |     | <span class='unexecuted'>            uint256[] memory cvxSwap =</span>
+ 2170 |     | <span class='unexecuted'>                IUniswapV2Router02(sushiswap).getAmountsOut(</span>
+ 2171 |     | <span class='unexecuted'>                    mintableCvx,</span>
+ 2172 |     | <span class='unexecuted'>                    cvx_usd_path</span>
+ 2173 |     | <span class='neutral'>                );</span>
+ 2174 |     | <span class='unexecuted'>            cvxValue = cvxSwap[cvxSwap.length - 1];</span>
+ 2175 |     | <span class='neutral'>        }</span>
+ 2176 |     | <span class='unexecuted'>        return crvValue.add(cvxValue);</span>
+ 2177 |     | <span class='neutral'>    }</span>
+ 2178 |     | <span class='neutral'></span>
+ 2179 |     | <span class='neutral'>    // convert our keeper&#39;s eth cost into want</span>
+ 2180 |     | <span class='unexecuted'>    function ethToWant(uint256 _ethAmount)</span>
+ 2181 |     | <span class='neutral'>        public</span>
+ 2182 |     | <span class='neutral'>        view</span>
+ 2183 |     | <span class='neutral'>        override</span>
+ 2184 |     | <span class='unexecuted'>        returns (uint256)</span>
+ 2185 |     | <span class='neutral'>    {</span>
+ 2186 |     | <span class='neutral'>        uint256 callCostInWant;</span>
+ 2187 |     | <span class='unexecuted'>        if (_ethAmount &gt; 0) {</span>
+ 2188 |     | <span class='unexecuted'>            uint256 callCostInUst =</span>
+ 2189 |     | <span class='unexecuted'>                oracle.ethToAsset(_ethAmount, address(ust), 1800);</span>
+ 2190 |     | <span class='unexecuted'>            callCostInWant = curve.calc_token_amount([0, callCostInUst], true);</span>
+ 2191 |     | <span class='neutral'>        }</span>
+ 2192 |     | <span class='unexecuted'>        return callCostInWant;</span>
+ 2193 |     | <span class='neutral'>    }</span>
+ 2194 |     | <span class='neutral'></span>
+ 2195 |     | <span class='neutral'>    /* ========== SETTERS ========== */</span>
+ 2196 |     | <span class='neutral'></span>
+ 2197 |     | <span class='neutral'>    // set the maximum gas price we want to pay for a harvest/tend in gwei</span>
+ 2198 |     | <span class='unexecuted'>    function setGasPrice(uint256 _maxGasPrice) external onlyAuthorized {</span>
+ 2199 |     | <span class='unexecuted'>        maxGasPrice = _maxGasPrice.mul(1e9);</span>
+ 2200 |     | <span class='neutral'>    }</span>
+ 2201 |     | <span class='neutral'>}</span>
+
+</code>
+<br />
+

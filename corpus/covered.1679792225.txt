@@ -1,0 +1,31 @@
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/test/echidna/EchidnaE2E.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | 
+  5 |     | // import '../../interfaces/ozIDiamond.sol';
+  6 |     | // import '../../contracts/testing-files/WtiFeed.sol';
+  7 |     | 
+  8 | *r  | 
+  9 |     | contract EchidnaE2E {
+ 10 |     | 
+ 11 |     |     // ozIDiamond OZL = ozIDiamond(0x7D1f13Dd05E6b0673DC3D0BFa14d40A74Cfa3EF2);
+ 12 |     |     // WtiFeed wtiFeed = WtiFeed(0x1dC4c1cEFEF38a777b15aA20260a54E584b16C48);
+ 13 |     | 
+ 14 |     | 
+ 15 |     |     // function get_price() public view  {
+ 16 |     |     //     uint256 price = OZL.getLastPrice();
+ 17 |     |     //     assert(price > 0);
+ 18 |     |     // }
+ 19 |     | 
+ 20 |     |     // function get_round_data() public view  {
+ 21 |     |     //     (, int price,,,) = wtiFeed.latestRoundData();
+ 22 |     |     //     assert(price > 0);
+ 23 |     |     // }
+ 24 |     | 
+ 25 | *   |     function getHello() public pure {
+ 26 | *   |         assert(true);
+ 27 |     |     }
+ 28 |     | 
+ 29 |     | }
+

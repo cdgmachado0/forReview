@@ -1,0 +1,27 @@
+{
+  "name": "ozel-v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@chainlink/contracts": "^0.6.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@openzeppelin/contracts": "^4.8.2",
+    "@uniswap/v3-core": "^1.0.1",
+    "@uniswap/v3-periphery": "^1.4.3",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.4.0",
+    "hardhat": "^2.13.0",
+    "solmate": "^6.7.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-foundry": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8"
+  }
+}

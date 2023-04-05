@@ -1,0 +1,2476 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LengthMismatch",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "word",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mask",
+          "type": "uint256"
+        }
+      ],
+      "name": "UnorderedNonceInvalidation",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "wordPos",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mask",
+          "type": "uint256"
+        }
+      ],
+      "name": "invalidateUnorderedNonces",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "nonceBitmap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ISignatureTransfer.TokenPermissions",
+              "name": "permitted",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.PermitTransferFrom",
+          "name": "permit",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.SignatureTransferDetails",
+          "name": "transferDetails",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "permitTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ISignatureTransfer.TokenPermissions[]",
+              "name": "permitted",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.PermitBatchTransferFrom",
+          "name": "permit",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.SignatureTransferDetails[]",
+          "name": "transferDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "permitTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ISignatureTransfer.TokenPermissions",
+              "name": "permitted",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.PermitTransferFrom",
+          "name": "permit",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.SignatureTransferDetails",
+          "name": "transferDetails",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "witness",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "witnessTypeString",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "permitWitnessTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ISignatureTransfer.TokenPermissions[]",
+              "name": "permitted",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.PermitBatchTransferFrom",
+          "name": "permit",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISignatureTransfer.SignatureTransferDetails[]",
+          "name": "transferDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "witness",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "witnessTypeString",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "permitWitnessTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "invalidateUnorderedNonces(uint256,uint256)": "3ff9dcb1",
+    "nonceBitmap(address,uint256)": "4fe02b44",
+    "permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)": "30f28b7a",
+    "permitTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes)": "edd9444b",
+    "permitWitnessTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes32,string,bytes)": "137c29fe",
+    "permitWitnessTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes32,string,bytes)": "fe8ec1a7"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"maxAmount\",\"type\":\"uint256\"}],\"name\":\"InvalidAmount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LengthMismatch\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"word\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mask\",\"type\":\"uint256\"}],\"name\":\"UnorderedNonceInvalidation\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wordPos\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mask\",\"type\":\"uint256\"}],\"name\":\"invalidateUnorderedNonces\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"nonceBitmap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.TokenPermissions\",\"name\":\"permitted\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.PermitTransferFrom\",\"name\":\"permit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.SignatureTransferDetails\",\"name\":\"transferDetails\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"permitTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.TokenPermissions[]\",\"name\":\"permitted\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.PermitBatchTransferFrom\",\"name\":\"permit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.SignatureTransferDetails[]\",\"name\":\"transferDetails\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"permitTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.TokenPermissions\",\"name\":\"permitted\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.PermitTransferFrom\",\"name\":\"permit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.SignatureTransferDetails\",\"name\":\"transferDetails\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"witness\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"witnessTypeString\",\"type\":\"string\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"permitWitnessTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.TokenPermissions[]\",\"name\":\"permitted\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.PermitBatchTransferFrom\",\"name\":\"permit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct ISignatureTransfer.SignatureTransferDetails[]\",\"name\":\"transferDetails\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"witness\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"witnessTypeString\",\"type\":\"string\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"permitWitnessTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Requires user's token approval on the Permit2 contract\",\"errors\":{\"InvalidAmount(uint256)\":[{\"params\":{\"maxAmount\":\"The maximum amount a spender can request to transfer\"}}],\"LengthMismatch()\":[{\"details\":\"If the spender does not need to transfer the number of tokens permitted, the spender can request amount 0 to be transferred\"}]},\"kind\":\"dev\",\"methods\":{\"invalidateUnorderedNonces(uint256,uint256)\":{\"details\":\"The wordPos is maxed at type(uint248).max\",\"params\":{\"mask\":\"A bitmap masked against msg.sender's current bitmap at the word position\",\"wordPos\":\"A number to index the nonceBitmap at\"}},\"nonceBitmap(address,uint256)\":{\"details\":\"Uses unordered nonces so that permit messages do not need to be spent in a certain orderThe mapping is indexed first by the token owner, then by an index specified in the nonceIt returns a uint256 bitmapThe index, or wordPosition is capped at type(uint248).max\"},\"permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)\":{\"details\":\"Reverts if the requested amount is greater than the permitted signed amount\",\"params\":{\"owner\":\"The owner of the tokens to transfer\",\"permit\":\"The permit data signed over by the owner\",\"signature\":\"The signature to verify\",\"transferDetails\":\"The spender's requested transfer details for the permitted token\"}},\"permitTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes)\":{\"params\":{\"owner\":\"The owner of the tokens to transfer\",\"permit\":\"The permit data signed over by the owner\",\"signature\":\"The signature to verify\",\"transferDetails\":\"Specifies the recipient and requested amount for the token transfer\"}},\"permitWitnessTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes32,string,bytes)\":{\"details\":\"The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definitionReverts if the requested amount is greater than the permitted signed amount\",\"params\":{\"owner\":\"The owner of the tokens to transfer\",\"permit\":\"The permit data signed over by the owner\",\"signature\":\"The signature to verify\",\"transferDetails\":\"The spender's requested transfer details for the permitted token\",\"witness\":\"Extra data to include when checking the user signature\",\"witnessTypeString\":\"The EIP-712 type definition for remaining string stub of the typehash\"}},\"permitWitnessTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes32,string,bytes)\":{\"details\":\"The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definition\",\"params\":{\"owner\":\"The owner of the tokens to transfer\",\"permit\":\"The permit data signed over by the owner\",\"signature\":\"The signature to verify\",\"transferDetails\":\"Specifies the recipient and requested amount for the token transfer\",\"witness\":\"Extra data to include when checking the user signature\",\"witnessTypeString\":\"The EIP-712 type definition for remaining string stub of the typehash\"}}},\"title\":\"SignatureTransfer\",\"version\":1},\"userdoc\":{\"errors\":{\"InvalidAmount(uint256)\":[{\"notice\":\"Thrown when the requested amount for a transfer is larger than the permissioned amount\"}],\"LengthMismatch()\":[{\"notice\":\"Thrown when the number of tokens permissioned to a spender does not match the number of tokens being transferred\"}]},\"events\":{\"UnorderedNonceInvalidation(address,uint256,uint256)\":{\"notice\":\"Emits an event when the owner successfully invalidates an unordered nonce.\"}},\"kind\":\"user\",\"methods\":{\"invalidateUnorderedNonces(uint256,uint256)\":{\"notice\":\"Invalidates the bits specified in mask for the bitmap at the word position\"},\"nonceBitmap(address,uint256)\":{\"notice\":\"A map from token owner address and a caller specified word index to a bitmap. Used to set bits in the bitmap to prevent against signature replay protection\"},\"permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)\":{\"notice\":\"Transfers a token using a signed permit message\"},\"permitTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes)\":{\"notice\":\"Transfers multiple tokens using a signed permit message\"},\"permitWitnessTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes32,string,bytes)\":{\"notice\":\"Transfers a token using a signed permit messageIncludes extra data provided by the caller to verify signature over\"},\"permitWitnessTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes32,string,bytes)\":{\"notice\":\"Transfers multiple tokens using a signed permit messageIncludes extra data provided by the caller to verify signature over\"}},\"notice\":\"Handles ERC20 token transfers through signature based actions\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"interfaces/ISignatureTransfer.sol\":\"ISignatureTransfer\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=node_modules/hardhat/\",\":solmate/=node_modules/solmate/\"]},\"sources\":{\"interfaces/ISignatureTransfer.sol\":{\"keccak256\":\"0x1fe5410c84a7e788c4ca73e687152f4a47594a03fcd751e09cd54738ed999d7b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a91339048329d2c2bb8f43b4151152657242596915186f0a722b20b84c9a10df\",\"dweb:/ipfs/QmS8GhzZA17vCAhpBaccbhSVaKcCZqivBhwKthytf2oKwX\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.19+commit.7dd6d404"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "maxAmount",
+              "type": "uint256"
+            }
+          ],
+          "type": "error",
+          "name": "InvalidAmount"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "LengthMismatch"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "uint256",
+              "name": "word",
+              "type": "uint256",
+              "indexed": false
+            },
+            {
+              "internalType": "uint256",
+              "name": "mask",
+              "type": "uint256",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "UnorderedNonceInvalidation",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "wordPos",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mask",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "invalidateUnorderedNonces"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "nonceBitmap",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct ISignatureTransfer.PermitTransferFrom",
+              "name": "permit",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "struct ISignatureTransfer.TokenPermissions",
+                  "name": "permitted",
+                  "type": "tuple",
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "token",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ]
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "struct ISignatureTransfer.SignatureTransferDetails",
+              "name": "transferDetails",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestedAmount",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "permitTransferFrom"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct ISignatureTransfer.PermitBatchTransferFrom",
+              "name": "permit",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "struct ISignatureTransfer.TokenPermissions[]",
+                  "name": "permitted",
+                  "type": "tuple[]",
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "token",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ]
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "struct ISignatureTransfer.SignatureTransferDetails[]",
+              "name": "transferDetails",
+              "type": "tuple[]",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestedAmount",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "permitTransferFrom"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct ISignatureTransfer.PermitTransferFrom",
+              "name": "permit",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "struct ISignatureTransfer.TokenPermissions",
+                  "name": "permitted",
+                  "type": "tuple",
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "token",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ]
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "struct ISignatureTransfer.SignatureTransferDetails",
+              "name": "transferDetails",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestedAmount",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "witness",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "witnessTypeString",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "permitWitnessTransferFrom"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct ISignatureTransfer.PermitBatchTransferFrom",
+              "name": "permit",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "struct ISignatureTransfer.TokenPermissions[]",
+                  "name": "permitted",
+                  "type": "tuple[]",
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "token",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ]
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "struct ISignatureTransfer.SignatureTransferDetails[]",
+              "name": "transferDetails",
+              "type": "tuple[]",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestedAmount",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "witness",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "witnessTypeString",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "permitWitnessTransferFrom"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "invalidateUnorderedNonces(uint256,uint256)": {
+            "details": "The wordPos is maxed at type(uint248).max",
+            "params": {
+              "mask": "A bitmap masked against msg.sender's current bitmap at the word position",
+              "wordPos": "A number to index the nonceBitmap at"
+            }
+          },
+          "nonceBitmap(address,uint256)": {
+            "details": "Uses unordered nonces so that permit messages do not need to be spent in a certain orderThe mapping is indexed first by the token owner, then by an index specified in the nonceIt returns a uint256 bitmapThe index, or wordPosition is capped at type(uint248).max"
+          },
+          "permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)": {
+            "details": "Reverts if the requested amount is greater than the permitted signed amount",
+            "params": {
+              "owner": "The owner of the tokens to transfer",
+              "permit": "The permit data signed over by the owner",
+              "signature": "The signature to verify",
+              "transferDetails": "The spender's requested transfer details for the permitted token"
+            }
+          },
+          "permitTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes)": {
+            "params": {
+              "owner": "The owner of the tokens to transfer",
+              "permit": "The permit data signed over by the owner",
+              "signature": "The signature to verify",
+              "transferDetails": "Specifies the recipient and requested amount for the token transfer"
+            }
+          },
+          "permitWitnessTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes32,string,bytes)": {
+            "details": "The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definitionReverts if the requested amount is greater than the permitted signed amount",
+            "params": {
+              "owner": "The owner of the tokens to transfer",
+              "permit": "The permit data signed over by the owner",
+              "signature": "The signature to verify",
+              "transferDetails": "The spender's requested transfer details for the permitted token",
+              "witness": "Extra data to include when checking the user signature",
+              "witnessTypeString": "The EIP-712 type definition for remaining string stub of the typehash"
+            }
+          },
+          "permitWitnessTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes32,string,bytes)": {
+            "details": "The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definition",
+            "params": {
+              "owner": "The owner of the tokens to transfer",
+              "permit": "The permit data signed over by the owner",
+              "signature": "The signature to verify",
+              "transferDetails": "Specifies the recipient and requested amount for the token transfer",
+              "witness": "Extra data to include when checking the user signature",
+              "witnessTypeString": "The EIP-712 type definition for remaining string stub of the typehash"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "invalidateUnorderedNonces(uint256,uint256)": {
+            "notice": "Invalidates the bits specified in mask for the bitmap at the word position"
+          },
+          "nonceBitmap(address,uint256)": {
+            "notice": "A map from token owner address and a caller specified word index to a bitmap. Used to set bits in the bitmap to prevent against signature replay protection"
+          },
+          "permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)": {
+            "notice": "Transfers a token using a signed permit message"
+          },
+          "permitTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes)": {
+            "notice": "Transfers multiple tokens using a signed permit message"
+          },
+          "permitWitnessTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes32,string,bytes)": {
+            "notice": "Transfers a token using a signed permit messageIncludes extra data provided by the caller to verify signature over"
+          },
+          "permitWitnessTransferFrom(((address,uint256)[],uint256,uint256),(address,uint256)[],address,bytes32,string,bytes)": {
+            "notice": "Transfers multiple tokens using a signed permit messageIncludes extra data provided by the caller to verify signature over"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=node_modules/hardhat/",
+        ":solmate/=node_modules/solmate/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "interfaces/ISignatureTransfer.sol": "ISignatureTransfer"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "interfaces/ISignatureTransfer.sol": {
+        "keccak256": "0x1fe5410c84a7e788c4ca73e687152f4a47594a03fcd751e09cd54738ed999d7b",
+        "urls": [
+          "bzz-raw://a91339048329d2c2bb8f43b4151152657242596915186f0a722b20b84c9a10df",
+          "dweb:/ipfs/QmS8GhzZA17vCAhpBaccbhSVaKcCZqivBhwKthytf2oKwX"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "interfaces/ISignatureTransfer.sol",
+    "id": 1350,
+    "exportedSymbols": {
+      "ISignatureTransfer": [
+        1349
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:6792:11",
+    "nodes": [
+      {
+        "id": 1219,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:11",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 1349,
+        "nodeType": "ContractDefinition",
+        "src": "225:6599:11",
+        "nodes": [
+          {
+            "id": 1225,
+            "nodeType": "ErrorDefinition",
+            "src": "441:39:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1221,
+              "nodeType": "StructuredDocumentation",
+              "src": "260:176:11",
+              "text": "@notice Thrown when the requested amount for a transfer is larger than the permissioned amount\n @param maxAmount The maximum amount a spender can request to transfer"
+            },
+            "errorSelector": "3728b83d",
+            "name": "InvalidAmount",
+            "nameLocation": "447:13:11",
+            "parameters": {
+              "id": 1224,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1223,
+                  "mutability": "mutable",
+                  "name": "maxAmount",
+                  "nameLocation": "469:9:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1225,
+                  "src": "461:17:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1222,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "461:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "460:19:11"
+            }
+          },
+          {
+            "id": 1228,
+            "nodeType": "ErrorDefinition",
+            "src": "752:23:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1226,
+              "nodeType": "StructuredDocumentation",
+              "src": "486:261:11",
+              "text": "@notice Thrown when the number of tokens permissioned to a spender does not match the number of tokens being transferred\n @dev If the spender does not need to transfer the number of tokens permitted, the spender can request amount 0 to be transferred"
+            },
+            "errorSelector": "ff633a38",
+            "name": "LengthMismatch",
+            "nameLocation": "758:14:11",
+            "parameters": {
+              "id": 1227,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "772:2:11"
+            }
+          },
+          {
+            "id": 1237,
+            "nodeType": "EventDefinition",
+            "src": "872:84:11",
+            "nodes": [],
+            "anonymous": false,
+            "documentation": {
+              "id": 1229,
+              "nodeType": "StructuredDocumentation",
+              "src": "781:86:11",
+              "text": "@notice Emits an event when the owner successfully invalidates an unordered nonce."
+            },
+            "eventSelector": "3704902f963766a4e561bbaab6e6cdc1b1dd12f6e9e99648da8843b3f46b918d",
+            "name": "UnorderedNonceInvalidation",
+            "nameLocation": "878:26:11",
+            "parameters": {
+              "id": 1236,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1231,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "921:5:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1237,
+                  "src": "905:21:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1230,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "905:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1233,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "word",
+                  "nameLocation": "936:4:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1237,
+                  "src": "928:12:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1232,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "928:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1235,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "mask",
+                  "nameLocation": "950:4:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1237,
+                  "src": "942:12:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1234,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "942:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "904:51:11"
+            }
+          },
+          {
+            "id": 1242,
+            "nodeType": "StructDefinition",
+            "src": "1062:157:11",
+            "nodes": [],
+            "canonicalName": "ISignatureTransfer.TokenPermissions",
+            "members": [
+              {
+                "constant": false,
+                "id": 1239,
+                "mutability": "mutable",
+                "name": "token",
+                "nameLocation": "1135:5:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1242,
+                "src": "1127:13:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 1238,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1127:7:11",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1241,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "1206:6:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1242,
+                "src": "1198:14:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1240,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1198:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "TokenPermissions",
+            "nameLocation": "1069:16:11",
+            "scope": 1349,
+            "visibility": "public"
+          },
+          {
+            "id": 1250,
+            "nodeType": "StructDefinition",
+            "src": "1295:251:11",
+            "nodes": [],
+            "canonicalName": "ISignatureTransfer.PermitTransferFrom",
+            "members": [
+              {
+                "constant": false,
+                "id": 1245,
+                "mutability": "mutable",
+                "name": "permitted",
+                "nameLocation": "1348:9:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1250,
+                "src": "1331:26:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_TokenPermissions_$1242_storage_ptr",
+                  "typeString": "struct ISignatureTransfer.TokenPermissions"
+                },
+                "typeName": {
+                  "id": 1244,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 1243,
+                    "name": "TokenPermissions",
+                    "nameLocations": [
+                      "1331:16:11"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 1242,
+                    "src": "1331:16:11"
+                  },
+                  "referencedDeclaration": 1242,
+                  "src": "1331:16:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_TokenPermissions_$1242_storage_ptr",
+                    "typeString": "struct ISignatureTransfer.TokenPermissions"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1247,
+                "mutability": "mutable",
+                "name": "nonce",
+                "nameLocation": "1464:5:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1250,
+                "src": "1456:13:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1246,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1456:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1249,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "1531:8:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1250,
+                "src": "1523:16:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1248,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1523:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PermitTransferFrom",
+            "nameLocation": "1302:18:11",
+            "scope": 1349,
+            "visibility": "public"
+          },
+          {
+            "id": 1255,
+            "nodeType": "StructDefinition",
+            "src": "1823:157:11",
+            "nodes": [],
+            "canonicalName": "ISignatureTransfer.SignatureTransferDetails",
+            "members": [
+              {
+                "constant": false,
+                "id": 1252,
+                "mutability": "mutable",
+                "name": "to",
+                "nameLocation": "1902:2:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1255,
+                "src": "1894:10:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 1251,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1894:7:11",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1254,
+                "mutability": "mutable",
+                "name": "requestedAmount",
+                "nameLocation": "1958:15:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1255,
+                "src": "1950:23:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1253,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1950:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SignatureTransferDetails",
+            "nameLocation": "1830:24:11",
+            "scope": 1349,
+            "visibility": "public"
+          },
+          {
+            "id": 1264,
+            "nodeType": "StructDefinition",
+            "src": "2234:331:11",
+            "nodes": [],
+            "canonicalName": "ISignatureTransfer.PermitBatchTransferFrom",
+            "members": [
+              {
+                "constant": false,
+                "id": 1259,
+                "mutability": "mutable",
+                "name": "permitted",
+                "nameLocation": "2367:9:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1264,
+                "src": "2348:28:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_struct$_TokenPermissions_$1242_storage_$dyn_storage_ptr",
+                  "typeString": "struct ISignatureTransfer.TokenPermissions[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 1257,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1256,
+                      "name": "TokenPermissions",
+                      "nameLocations": [
+                        "2348:16:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1242,
+                      "src": "2348:16:11"
+                    },
+                    "referencedDeclaration": 1242,
+                    "src": "2348:16:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_TokenPermissions_$1242_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.TokenPermissions"
+                    }
+                  },
+                  "id": 1258,
+                  "nodeType": "ArrayTypeName",
+                  "src": "2348:18:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_TokenPermissions_$1242_storage_$dyn_storage_ptr",
+                    "typeString": "struct ISignatureTransfer.TokenPermissions[]"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1261,
+                "mutability": "mutable",
+                "name": "nonce",
+                "nameLocation": "2483:5:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1264,
+                "src": "2475:13:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1260,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2475:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1263,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "2550:8:11",
+                "nodeType": "VariableDeclaration",
+                "scope": 1264,
+                "src": "2542:16:11",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1262,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2542:7:11",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PermitBatchTransferFrom",
+            "nameLocation": "2241:23:11",
+            "scope": 1349,
+            "visibility": "public"
+          },
+          {
+            "id": 1274,
+            "nodeType": "FunctionDefinition",
+            "src": "3059:71:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1265,
+              "nodeType": "StructuredDocumentation",
+              "src": "2571:483:11",
+              "text": "@notice A map from token owner address and a caller specified word index to a bitmap. Used to set bits in the bitmap to prevent against signature replay protection\n @dev Uses unordered nonces so that permit messages do not need to be spent in a certain order\n @dev The mapping is indexed first by the token owner, then by an index specified in the nonce\n @dev It returns a uint256 bitmap\n @dev The index, or wordPosition is capped at type(uint248).max"
+            },
+            "functionSelector": "4fe02b44",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "nonceBitmap",
+            "nameLocation": "3068:11:11",
+            "parameters": {
+              "id": 1270,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1267,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1274,
+                  "src": "3080:7:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1266,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3080:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1269,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1274,
+                  "src": "3089:7:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1268,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3089:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3079:18:11"
+            },
+            "returnParameters": {
+              "id": 1273,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1272,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1274,
+                  "src": "3121:7:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1271,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3121:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3120:9:11"
+            },
+            "scope": 1349,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1288,
+            "nodeType": "FunctionDefinition",
+            "src": "3554:201:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1275,
+              "nodeType": "StructuredDocumentation",
+              "src": "3136:413:11",
+              "text": "@notice Transfers a token using a signed permit message\n @dev Reverts if the requested amount is greater than the permitted signed amount\n @param permit The permit data signed over by the owner\n @param owner The owner of the tokens to transfer\n @param transferDetails The spender's requested transfer details for the permitted token\n @param signature The signature to verify"
+            },
+            "functionSelector": "30f28b7a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "permitTransferFrom",
+            "nameLocation": "3563:18:11",
+            "parameters": {
+              "id": 1286,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1278,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "3617:6:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1288,
+                  "src": "3591:32:11",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PermitTransferFrom_$1250_memory_ptr",
+                    "typeString": "struct ISignatureTransfer.PermitTransferFrom"
+                  },
+                  "typeName": {
+                    "id": 1277,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1276,
+                      "name": "PermitTransferFrom",
+                      "nameLocations": [
+                        "3591:18:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1250,
+                      "src": "3591:18:11"
+                    },
+                    "referencedDeclaration": 1250,
+                    "src": "3591:18:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PermitTransferFrom_$1250_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.PermitTransferFrom"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1281,
+                  "mutability": "mutable",
+                  "name": "transferDetails",
+                  "nameLocation": "3667:15:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1288,
+                  "src": "3633:49:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_calldata_ptr",
+                    "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                  },
+                  "typeName": {
+                    "id": 1280,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1279,
+                      "name": "SignatureTransferDetails",
+                      "nameLocations": [
+                        "3633:24:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1255,
+                      "src": "3633:24:11"
+                    },
+                    "referencedDeclaration": 1255,
+                    "src": "3633:24:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1283,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "3700:5:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1288,
+                  "src": "3692:13:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1282,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3692:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1285,
+                  "mutability": "mutable",
+                  "name": "signature",
+                  "nameLocation": "3730:9:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1288,
+                  "src": "3715:24:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1284,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3715:5:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3581:164:11"
+            },
+            "returnParameters": {
+              "id": 1287,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3754:0:11"
+            },
+            "scope": 1349,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1306,
+            "nodeType": "FunctionDefinition",
+            "src": "4581:276:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1289,
+              "nodeType": "StructuredDocumentation",
+              "src": "3761:815:11",
+              "text": "@notice Transfers a token using a signed permit message\n @notice Includes extra data provided by the caller to verify signature over\n @dev The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definition\n @dev Reverts if the requested amount is greater than the permitted signed amount\n @param permit The permit data signed over by the owner\n @param owner The owner of the tokens to transfer\n @param transferDetails The spender's requested transfer details for the permitted token\n @param witness Extra data to include when checking the user signature\n @param witnessTypeString The EIP-712 type definition for remaining string stub of the typehash\n @param signature The signature to verify"
+            },
+            "functionSelector": "137c29fe",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "permitWitnessTransferFrom",
+            "nameLocation": "4590:25:11",
+            "parameters": {
+              "id": 1304,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1292,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "4651:6:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4625:32:11",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PermitTransferFrom_$1250_memory_ptr",
+                    "typeString": "struct ISignatureTransfer.PermitTransferFrom"
+                  },
+                  "typeName": {
+                    "id": 1291,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1290,
+                      "name": "PermitTransferFrom",
+                      "nameLocations": [
+                        "4625:18:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1250,
+                      "src": "4625:18:11"
+                    },
+                    "referencedDeclaration": 1250,
+                    "src": "4625:18:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PermitTransferFrom_$1250_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.PermitTransferFrom"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1295,
+                  "mutability": "mutable",
+                  "name": "transferDetails",
+                  "nameLocation": "4701:15:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4667:49:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_calldata_ptr",
+                    "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                  },
+                  "typeName": {
+                    "id": 1294,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1293,
+                      "name": "SignatureTransferDetails",
+                      "nameLocations": [
+                        "4667:24:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1255,
+                      "src": "4667:24:11"
+                    },
+                    "referencedDeclaration": 1255,
+                    "src": "4667:24:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1297,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "4734:5:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4726:13:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1296,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4726:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1299,
+                  "mutability": "mutable",
+                  "name": "witness",
+                  "nameLocation": "4757:7:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4749:15:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 1298,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4749:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1301,
+                  "mutability": "mutable",
+                  "name": "witnessTypeString",
+                  "nameLocation": "4790:17:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4774:33:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_calldata_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 1300,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4774:6:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1303,
+                  "mutability": "mutable",
+                  "name": "signature",
+                  "nameLocation": "4832:9:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1306,
+                  "src": "4817:24:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1302,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4817:5:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4615:232:11"
+            },
+            "returnParameters": {
+              "id": 1305,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4856:0:11"
+            },
+            "scope": 1349,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1321,
+            "nodeType": "FunctionDefinition",
+            "src": "5203:208:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1307,
+              "nodeType": "StructuredDocumentation",
+              "src": "4863:335:11",
+              "text": "@notice Transfers multiple tokens using a signed permit message\n @param permit The permit data signed over by the owner\n @param owner The owner of the tokens to transfer\n @param transferDetails Specifies the recipient and requested amount for the token transfer\n @param signature The signature to verify"
+            },
+            "functionSelector": "edd9444b",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "permitTransferFrom",
+            "nameLocation": "5212:18:11",
+            "parameters": {
+              "id": 1319,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1310,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "5271:6:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1321,
+                  "src": "5240:37:11",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PermitBatchTransferFrom_$1264_memory_ptr",
+                    "typeString": "struct ISignatureTransfer.PermitBatchTransferFrom"
+                  },
+                  "typeName": {
+                    "id": 1309,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1308,
+                      "name": "PermitBatchTransferFrom",
+                      "nameLocations": [
+                        "5240:23:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1264,
+                      "src": "5240:23:11"
+                    },
+                    "referencedDeclaration": 1264,
+                    "src": "5240:23:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PermitBatchTransferFrom_$1264_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.PermitBatchTransferFrom"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1314,
+                  "mutability": "mutable",
+                  "name": "transferDetails",
+                  "nameLocation": "5323:15:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1321,
+                  "src": "5287:51:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SignatureTransferDetails_$1255_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct ISignatureTransfer.SignatureTransferDetails[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 1312,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 1311,
+                        "name": "SignatureTransferDetails",
+                        "nameLocations": [
+                          "5287:24:11"
+                        ],
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 1255,
+                        "src": "5287:24:11"
+                      },
+                      "referencedDeclaration": 1255,
+                      "src": "5287:24:11",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_storage_ptr",
+                        "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                      }
+                    },
+                    "id": 1313,
+                    "nodeType": "ArrayTypeName",
+                    "src": "5287:26:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_SignatureTransferDetails_$1255_storage_$dyn_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.SignatureTransferDetails[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1316,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "5356:5:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1321,
+                  "src": "5348:13:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1315,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5348:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1318,
+                  "mutability": "mutable",
+                  "name": "signature",
+                  "nameLocation": "5386:9:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1321,
+                  "src": "5371:24:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1317,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5371:5:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5230:171:11"
+            },
+            "returnParameters": {
+              "id": 1320,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5410:0:11"
+            },
+            "scope": 1349,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1340,
+            "nodeType": "FunctionDefinition",
+            "src": "6159:283:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1322,
+              "nodeType": "StructuredDocumentation",
+              "src": "5417:737:11",
+              "text": "@notice Transfers multiple tokens using a signed permit message\n @dev The witness type string must follow EIP712 ordering of nested structs and must include the TokenPermissions type definition\n @notice Includes extra data provided by the caller to verify signature over\n @param permit The permit data signed over by the owner\n @param owner The owner of the tokens to transfer\n @param transferDetails Specifies the recipient and requested amount for the token transfer\n @param witness Extra data to include when checking the user signature\n @param witnessTypeString The EIP-712 type definition for remaining string stub of the typehash\n @param signature The signature to verify"
+            },
+            "functionSelector": "fe8ec1a7",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "permitWitnessTransferFrom",
+            "nameLocation": "6168:25:11",
+            "parameters": {
+              "id": 1338,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1325,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "6234:6:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6203:37:11",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PermitBatchTransferFrom_$1264_memory_ptr",
+                    "typeString": "struct ISignatureTransfer.PermitBatchTransferFrom"
+                  },
+                  "typeName": {
+                    "id": 1324,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1323,
+                      "name": "PermitBatchTransferFrom",
+                      "nameLocations": [
+                        "6203:23:11"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1264,
+                      "src": "6203:23:11"
+                    },
+                    "referencedDeclaration": 1264,
+                    "src": "6203:23:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PermitBatchTransferFrom_$1264_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.PermitBatchTransferFrom"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1329,
+                  "mutability": "mutable",
+                  "name": "transferDetails",
+                  "nameLocation": "6286:15:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6250:51:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SignatureTransferDetails_$1255_calldata_ptr_$dyn_calldata_ptr",
+                    "typeString": "struct ISignatureTransfer.SignatureTransferDetails[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 1327,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 1326,
+                        "name": "SignatureTransferDetails",
+                        "nameLocations": [
+                          "6250:24:11"
+                        ],
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 1255,
+                        "src": "6250:24:11"
+                      },
+                      "referencedDeclaration": 1255,
+                      "src": "6250:24:11",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_SignatureTransferDetails_$1255_storage_ptr",
+                        "typeString": "struct ISignatureTransfer.SignatureTransferDetails"
+                      }
+                    },
+                    "id": 1328,
+                    "nodeType": "ArrayTypeName",
+                    "src": "6250:26:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_SignatureTransferDetails_$1255_storage_$dyn_storage_ptr",
+                      "typeString": "struct ISignatureTransfer.SignatureTransferDetails[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1331,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "6319:5:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6311:13:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1330,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6311:7:11",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1333,
+                  "mutability": "mutable",
+                  "name": "witness",
+                  "nameLocation": "6342:7:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6334:15:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 1332,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6334:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1335,
+                  "mutability": "mutable",
+                  "name": "witnessTypeString",
+                  "nameLocation": "6375:17:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6359:33:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_calldata_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 1334,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6359:6:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1337,
+                  "mutability": "mutable",
+                  "name": "signature",
+                  "nameLocation": "6417:9:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1340,
+                  "src": "6402:24:11",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1336,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6402:5:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6193:239:11"
+            },
+            "returnParameters": {
+              "id": 1339,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6441:0:11"
+            },
+            "scope": 1349,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1348,
+            "nodeType": "FunctionDefinition",
+            "src": "6747:75:11",
+            "nodes": [],
+            "documentation": {
+              "id": 1341,
+              "nodeType": "StructuredDocumentation",
+              "src": "6448:294:11",
+              "text": "@notice Invalidates the bits specified in mask for the bitmap at the word position\n @dev The wordPos is maxed at type(uint248).max\n @param wordPos A number to index the nonceBitmap at\n @param mask A bitmap masked against msg.sender's current bitmap at the word position"
+            },
+            "functionSelector": "3ff9dcb1",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "invalidateUnorderedNonces",
+            "nameLocation": "6756:25:11",
+            "parameters": {
+              "id": 1346,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1343,
+                  "mutability": "mutable",
+                  "name": "wordPos",
+                  "nameLocation": "6790:7:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1348,
+                  "src": "6782:15:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1342,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6782:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1345,
+                  "mutability": "mutable",
+                  "name": "mask",
+                  "nameLocation": "6807:4:11",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1348,
+                  "src": "6799:12:11",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 1344,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6799:7:11",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6781:31:11"
+            },
+            "returnParameters": {
+              "id": 1347,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6821:0:11"
+            },
+            "scope": 1349,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "ISignatureTransfer",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 1220,
+          "nodeType": "StructuredDocumentation",
+          "src": "58:167:11",
+          "text": "@title SignatureTransfer\n @notice Handles ERC20 token transfers through signature based actions\n @dev Requires user's token approval on the Permit2 contract"
+        },
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          1349
+        ],
+        "name": "ISignatureTransfer",
+        "nameLocation": "235:18:11",
+        "scope": 1350,
+        "usedErrors": [
+          1225,
+          1228
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 11
+}

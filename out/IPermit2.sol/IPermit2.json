@@ -1,0 +1,919 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "DOMAIN_SEPARATOR",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "contract IERC20",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPermit2.TokenPermissions",
+              "name": "permitted",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IPermit2.PermitTransferFrom",
+          "name": "permit",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IPermit2.SignatureTransferDetails",
+          "name": "transferDetails",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "permitTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "DOMAIN_SEPARATOR()": "3644e515",
+    "permitTransferFrom(((address,uint256),uint256,uint256),(address,uint256),address,bytes)": "30f28b7a"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"DOMAIN_SEPARATOR\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"components\":[{\"internalType\":\"contract IERC20\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"internalType\":\"struct IPermit2.TokenPermissions\",\"name\":\"permitted\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"}],\"internalType\":\"struct IPermit2.PermitTransferFrom\",\"name\":\"permit\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"requestedAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct IPermit2.SignatureTransferDetails\",\"name\":\"transferDetails\",\"type\":\"tuple\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"permitTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"interfaces/IPermit2.sol\":\"IPermit2\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=node_modules/hardhat/\",\":solmate/=node_modules/solmate/\"]},\"sources\":{\"interfaces/IPermit2.sol\":{\"keccak256\":\"0xb3b517a6be1cb7e890e83ddc2d5e4a5ec41c1ef377c28e546e4b956cd6f57857\",\"license\":\"GPL-2.0-or-later\",\"urls\":[\"bzz-raw://210f7ff2ccd1c7174f4852a81548945cd5625c9c69e21c4ab65a23ce389ea157\",\"dweb:/ipfs/Qmc6rRPsUUwMrXF3uNwAaBmhewEHnfwzxty9uMB25hzy5R\"]},\"node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.19+commit.7dd6d404"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DOMAIN_SEPARATOR",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct IPermit2.PermitTransferFrom",
+              "name": "permit",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "struct IPermit2.TokenPermissions",
+                  "name": "permitted",
+                  "type": "tuple",
+                  "components": [
+                    {
+                      "internalType": "contract IERC20",
+                      "name": "token",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ]
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "struct IPermit2.SignatureTransferDetails",
+              "name": "transferDetails",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestedAmount",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "permitTransferFrom"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=node_modules/hardhat/",
+        ":solmate/=node_modules/solmate/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "interfaces/IPermit2.sol": "IPermit2"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "interfaces/IPermit2.sol": {
+        "keccak256": "0xb3b517a6be1cb7e890e83ddc2d5e4a5ec41c1ef377c28e546e4b956cd6f57857",
+        "urls": [
+          "bzz-raw://210f7ff2ccd1c7174f4852a81548945cd5625c9c69e21c4ab65a23ce389ea157",
+          "dweb:/ipfs/Qmc6rRPsUUwMrXF3uNwAaBmhewEHnfwzxty9uMB25hzy5R"
+        ],
+        "license": "GPL-2.0-or-later"
+      },
+      "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+        "keccak256": "0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b",
+        "urls": [
+          "bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34",
+          "dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "interfaces/IPermit2.sol",
+    "id": 1218,
+    "exportedSymbols": {
+      "IERC20": [
+        31820
+      ],
+      "IPermit2": [
+        1217
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "45:1301:10",
+    "nodes": [
+      {
+        "id": 1167,
+        "nodeType": "PragmaDirective",
+        "src": "45:23:10",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "0.8",
+          ".19"
+        ]
+      },
+      {
+        "id": 1168,
+        "nodeType": "ImportDirective",
+        "src": "71:56:10",
+        "nodes": [],
+        "absolutePath": "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "file": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 1218,
+        "sourceUnit": 31821,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 1217,
+        "nodeType": "ContractDefinition",
+        "src": "130:1216:10",
+        "nodes": [
+          {
+            "id": 1174,
+            "nodeType": "StructDefinition",
+            "src": "200:138:10",
+            "nodes": [],
+            "canonicalName": "IPermit2.TokenPermissions",
+            "members": [
+              {
+                "constant": false,
+                "id": 1171,
+                "mutability": "mutable",
+                "name": "token",
+                "nameLocation": "271:5:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1174,
+                "src": "264:12:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_contract$_IERC20_$31820",
+                  "typeString": "contract IERC20"
+                },
+                "typeName": {
+                  "id": 1170,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 1169,
+                    "name": "IERC20",
+                    "nameLocations": [
+                      "264:6:10"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 31820,
+                    "src": "264:6:10"
+                  },
+                  "referencedDeclaration": 31820,
+                  "src": "264:6:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$31820",
+                    "typeString": "contract IERC20"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1173,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "325:6:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1174,
+                "src": "317:14:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1172,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "317:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "TokenPermissions",
+            "nameLocation": "207:16:10",
+            "scope": 1217,
+            "visibility": "public"
+          },
+          {
+            "id": 1182,
+            "nodeType": "StructDefinition",
+            "src": "372:242:10",
+            "nodes": [],
+            "canonicalName": "IPermit2.PermitTransferFrom",
+            "members": [
+              {
+                "constant": false,
+                "id": 1177,
+                "mutability": "mutable",
+                "name": "permitted",
+                "nameLocation": "464:9:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1182,
+                "src": "447:26:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_TokenPermissions_$1174_storage_ptr",
+                  "typeString": "struct IPermit2.TokenPermissions"
+                },
+                "typeName": {
+                  "id": 1176,
+                  "nodeType": "UserDefinedTypeName",
+                  "pathNode": {
+                    "id": 1175,
+                    "name": "TokenPermissions",
+                    "nameLocations": [
+                      "447:16:10"
+                    ],
+                    "nodeType": "IdentifierPath",
+                    "referencedDeclaration": 1174,
+                    "src": "447:16:10"
+                  },
+                  "referencedDeclaration": 1174,
+                  "src": "447:16:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_TokenPermissions_$1174_storage_ptr",
+                    "typeString": "struct IPermit2.TokenPermissions"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1179,
+                "mutability": "mutable",
+                "name": "nonce",
+                "nameLocation": "537:5:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1182,
+                "src": "529:13:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1178,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "529:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1181,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "599:8:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1182,
+                "src": "591:16:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1180,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "591:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PermitTransferFrom",
+            "nameLocation": "379:18:10",
+            "scope": 1217,
+            "visibility": "public"
+          },
+          {
+            "id": 1187,
+            "nodeType": "StructDefinition",
+            "src": "670:155:10",
+            "nodes": [],
+            "canonicalName": "IPermit2.SignatureTransferDetails",
+            "members": [
+              {
+                "constant": false,
+                "id": 1184,
+                "mutability": "mutable",
+                "name": "to",
+                "nameLocation": "752:2:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1187,
+                "src": "744:10:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 1183,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "744:7:10",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1186,
+                "mutability": "mutable",
+                "name": "requestedAmount",
+                "nameLocation": "803:15:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1187,
+                "src": "795:23:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1185,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "795:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "SignatureTransferDetails",
+            "nameLocation": "677:24:10",
+            "scope": 1217,
+            "visibility": "public"
+          },
+          {
+            "id": 1198,
+            "nodeType": "StructDefinition",
+            "src": "831:185:10",
+            "nodes": [],
+            "canonicalName": "IPermit2.Permit2Buy",
+            "members": [
+              {
+                "constant": false,
+                "id": 1189,
+                "mutability": "mutable",
+                "name": "buyer",
+                "nameLocation": "884:5:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1198,
+                "src": "876:13:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 1188,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "876:7:10",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1191,
+                "mutability": "mutable",
+                "name": "amount",
+                "nameLocation": "915:6:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1198,
+                "src": "907:14:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1190,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "907:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1193,
+                "mutability": "mutable",
+                "name": "nonce",
+                "nameLocation": "953:5:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1198,
+                "src": "945:13:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1192,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "945:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1195,
+                "mutability": "mutable",
+                "name": "deadline",
+                "nameLocation": "976:8:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1198,
+                "src": "968:16:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 1194,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "968:7:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 1197,
+                "mutability": "mutable",
+                "name": "signature",
+                "nameLocation": "1000:9:10",
+                "nodeType": "VariableDeclaration",
+                "scope": 1198,
+                "src": "994:15:10",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes_storage_ptr",
+                  "typeString": "bytes"
+                },
+                "typeName": {
+                  "id": 1196,
+                  "name": "bytes",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "994:5:10",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_storage_ptr",
+                    "typeString": "bytes"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Permit2Buy",
+            "nameLocation": "838:10:10",
+            "scope": 1217,
+            "visibility": "public"
+          },
+          {
+            "id": 1211,
+            "nodeType": "FunctionDefinition",
+            "src": "1076:203:10",
+            "nodes": [],
+            "functionSelector": "30f28b7a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "permitTransferFrom",
+            "nameLocation": "1085:18:10",
+            "parameters": {
+              "id": 1209,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1201,
+                  "mutability": "mutable",
+                  "name": "permit",
+                  "nameLocation": "1141:6:10",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1211,
+                  "src": "1113:34:10",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PermitTransferFrom_$1182_calldata_ptr",
+                    "typeString": "struct IPermit2.PermitTransferFrom"
+                  },
+                  "typeName": {
+                    "id": 1200,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1199,
+                      "name": "PermitTransferFrom",
+                      "nameLocations": [
+                        "1113:18:10"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1182,
+                      "src": "1113:18:10"
+                    },
+                    "referencedDeclaration": 1182,
+                    "src": "1113:18:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PermitTransferFrom_$1182_storage_ptr",
+                      "typeString": "struct IPermit2.PermitTransferFrom"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1204,
+                  "mutability": "mutable",
+                  "name": "transferDetails",
+                  "nameLocation": "1191:15:10",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1211,
+                  "src": "1157:49:10",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_SignatureTransferDetails_$1187_calldata_ptr",
+                    "typeString": "struct IPermit2.SignatureTransferDetails"
+                  },
+                  "typeName": {
+                    "id": 1203,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 1202,
+                      "name": "SignatureTransferDetails",
+                      "nameLocations": [
+                        "1157:24:10"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 1187,
+                      "src": "1157:24:10"
+                    },
+                    "referencedDeclaration": 1187,
+                    "src": "1157:24:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_SignatureTransferDetails_$1187_storage_ptr",
+                      "typeString": "struct IPermit2.SignatureTransferDetails"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1206,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "1224:5:10",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1211,
+                  "src": "1216:13:10",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1205,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1216:7:10",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1208,
+                  "mutability": "mutable",
+                  "name": "signature",
+                  "nameLocation": "1254:9:10",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1211,
+                  "src": "1239:24:10",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 1207,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1239:5:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1103:166:10"
+            },
+            "returnParameters": {
+              "id": 1210,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1278:0:10"
+            },
+            "scope": 1217,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 1216,
+            "nodeType": "FunctionDefinition",
+            "src": "1285:59:10",
+            "nodes": [],
+            "functionSelector": "3644e515",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "DOMAIN_SEPARATOR",
+            "nameLocation": "1294:16:10",
+            "parameters": {
+              "id": 1212,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1310:2:10"
+            },
+            "returnParameters": {
+              "id": 1215,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1214,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1216,
+                  "src": "1335:7:10",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 1213,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1335:7:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1334:9:10"
+            },
+            "scope": 1217,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IPermit2",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          1217
+        ],
+        "name": "IPermit2",
+        "nameLocation": "140:8:10",
+        "scope": 1218,
+        "usedErrors": []
+      }
+    ],
+    "license": "GPL-2.0-or-later"
+  },
+  "id": 10
+}

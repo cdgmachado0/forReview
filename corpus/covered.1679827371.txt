@@ -1,0 +1,850 @@
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/node_modules/@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | pragma solidity ^0.8.0;
+  3 |     | 
+  4 |     | interface AggregatorV3Interface {
+  5 |     |   function decimals() external view returns (uint8);
+  6 |     | 
+  7 |     |   function description() external view returns (string memory);
+  8 |     | 
+  9 |     |   function version() external view returns (uint256);
+ 10 |     | 
+ 11 |     |   function getRoundData(uint80 _roundId)
+ 12 |     |     external
+ 13 |     |     view
+ 14 |     |     returns (
+ 15 |     |       uint80 roundId,
+ 16 |     |       int256 answer,
+ 17 |     |       uint256 startedAt,
+ 18 |     |       uint256 updatedAt,
+ 19 |     |       uint80 answeredInRound
+ 20 |     |     );
+ 21 |     | 
+ 22 |     |   function latestRoundData()
+ 23 |     |     external
+ 24 |     |     view
+ 25 |     |     returns (
+ 26 |     |       uint80 roundId,
+ 27 |     |       int256 answer,
+ 28 |     |       uint256 startedAt,
+ 29 |     |       uint256 updatedAt,
+ 30 |     |       uint80 answeredInRound
+ 31 |     |     );
+ 32 |     | }
+ 33 |     | 
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
+  3 |     | 
+  4 |     | pragma solidity ^0.8.0;
+  5 |     | 
+  6 |     | /**
+  7 |     |  * @dev Interface of the ERC20 standard as defined in the EIP.
+  8 |     |  */
+  9 |     | interface IERC20 {
+ 10 |     |     /**
+ 11 |     |      * @dev Emitted when `value` tokens are moved from one account (`from`) to
+ 12 |     |      * another (`to`).
+ 13 |     |      *
+ 14 |     |      * Note that `value` may be zero.
+ 15 |     |      */
+ 16 |     |     event Transfer(address indexed from, address indexed to, uint256 value);
+ 17 |     | 
+ 18 |     |     /**
+ 19 |     |      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+ 20 |     |      * a call to {approve}. `value` is the new allowance.
+ 21 |     |      */
+ 22 |     |     event Approval(address indexed owner, address indexed spender, uint256 value);
+ 23 |     | 
+ 24 |     |     /**
+ 25 |     |      * @dev Returns the amount of tokens in existence.
+ 26 |     |      */
+ 27 |     |     function totalSupply() external view returns (uint256);
+ 28 |     | 
+ 29 |     |     /**
+ 30 |     |      * @dev Returns the amount of tokens owned by `account`.
+ 31 |     |      */
+ 32 |     |     function balanceOf(address account) external view returns (uint256);
+ 33 |     | 
+ 34 |     |     /**
+ 35 |     |      * @dev Moves `amount` tokens from the caller's account to `to`.
+ 36 |     |      *
+ 37 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 38 |     |      *
+ 39 |     |      * Emits a {Transfer} event.
+ 40 |     |      */
+ 41 |     |     function transfer(address to, uint256 amount) external returns (bool);
+ 42 |     | 
+ 43 |     |     /**
+ 44 |     |      * @dev Returns the remaining number of tokens that `spender` will be
+ 45 |     |      * allowed to spend on behalf of `owner` through {transferFrom}. This is
+ 46 |     |      * zero by default.
+ 47 |     |      *
+ 48 |     |      * This value changes when {approve} or {transferFrom} are called.
+ 49 |     |      */
+ 50 |     |     function allowance(address owner, address spender) external view returns (uint256);
+ 51 |     | 
+ 52 |     |     /**
+ 53 |     |      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+ 54 |     |      *
+ 55 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 56 |     |      *
+ 57 |     |      * IMPORTANT: Beware that changing an allowance with this method brings the risk
+ 58 |     |      * that someone may use both the old and the new allowance by unfortunate
+ 59 |     |      * transaction ordering. One possible solution to mitigate this race
+ 60 |     |      * condition is to first reduce the spender's allowance to 0 and set the
+ 61 |     |      * desired value afterwards:
+ 62 |     |      * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+ 63 |     |      *
+ 64 |     |      * Emits an {Approval} event.
+ 65 |     |      */
+ 66 |     |     function approve(address spender, uint256 amount) external returns (bool);
+ 67 |     | 
+ 68 |     |     /**
+ 69 |     |      * @dev Moves `amount` tokens from `from` to `to` using the
+ 70 |     |      * allowance mechanism. `amount` is then deducted from the caller's
+ 71 |     |      * allowance.
+ 72 |     |      *
+ 73 |     |      * Returns a boolean value indicating whether the operation succeeded.
+ 74 |     |      *
+ 75 |     |      * Emits a {Transfer} event.
+ 76 |     |      */
+ 77 |     |     function transferFrom(
+ 78 |     |         address from,
+ 79 |     |         address to,
+ 80 |     |         uint256 amount
+ 81 |     |     ) external returns (bool);
+ 82 |     | }
+ 83 |     | 
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/AppStorage.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | 
+  5 |     | import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+  6 |     | 
+  7 |     | 
+  8 |     | struct AppStorage {
+  9 |     | 
+ 10 |     |     AggregatorV3Interface wtiFeed;
+ 11 |     |     AggregatorV3Interface volatilityFeed;
+ 12 |     |     AggregatorV3Interface ethFeed;
+ 13 |     |     AggregatorV3Interface goldFeed;
+ 14 |     | }
+ 15 |     | 
+ 16 |     | 
+ 17 |     | struct DataInfo {
+ 18 |     |     uint80 roundId;
+ 19 |     |     int256 value;
+ 20 |     | }
+ 21 |     | 
+ 22 |     | struct Data {
+ 23 |     |     DataInfo volIndex;
+ 24 |     |     DataInfo wtiPrice;
+ 25 |     |     DataInfo ethPrice;
+ 26 |     |     DataInfo goldPrice;
+ 27 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/InitUpgradeV2.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | 
+  5 |     | import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+  6 |     | import './AppStorage.sol';
+  7 |     | import '../libraries/LibDiamond.sol';
+  8 |     | // import 'hardhat/console.sol';
+  9 |     | 
+ 10 |     | contract InitUpgradeV2 {
+ 11 |     | 
+ 12 |     |     AppStorage s;
+ 13 |     | 
+ 14 |     |     function init(
+ 15 |     |         address[] calldata feeds_,
+ 16 |     |         address[] memory facets_
+ 17 |     |     ) external {
+ 18 |     | 
+ 19 |     |         s.wtiFeed = AggregatorV3Interface(feeds_[0]);
+ 20 |     |         s.volatilityFeed = AggregatorV3Interface(feeds_[1]);
+ 21 |     |         s.ethFeed = AggregatorV3Interface(feeds_[2]);
+ 22 |     |         s.goldFeed = AggregatorV3Interface(feeds_[3]);
+ 23 |     | 
+ 24 |     |         // address[] memory facets = new address[](2);
+ 25 |     |         // facets[0] = facets_[0];
+ 26 |     |         // facets[0] = facets_[1];
+ 27 |     | 
+ 28 |     |         LibDiamond.setNonRevenueFacets(facets_); //test if anyone cann call setNonRevenueFacets
+ 29 |     | 
+ 30 |     |         //--------
+ 31 |     |     
+ 32 |     | 
+ 33 |     |     }
+ 34 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/facets/ozOracleFacet.sol
+   1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+   2 |     | pragma solidity 0.8.19;
+   3 |     | 
+   4 |     | 
+   5 |     | import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+   6 |     | import '../AppStorage.sol';
+   7 |     | // import "forge-std/console.sol";
+   8 |     | 
+   9 |     | // import 'hardhat/console.sol';
+  10 |     | 
+  11 |     | //add modularity to add and remove chainlink feeds
+  12 |     | //add uniswap and trellors oracles as a fallbac
+  13 |     | contract ozOracleFacet {
+  14 |     | 
+  15 |     |     AppStorage s;
+  16 |     | 
+  17 |     |     int256 private constant EIGHT_DEC = 1e8;
+  18 |     |     int256 private constant NINETN_DEC = 1e19;
+  19 |     | 
+  20 |     |     int constant BASE = 1e7;
+  21 |     | 
+  22 |     | 
+  23 |     | 
+  24 |     |     //**** MAIN ******/
+  25 |     | 
+  26 |     |     function getLastPrice() external view returns(uint256) {
+  27 |     |         (Data memory data, int basePrice) = _getDataFeeds();
+  28 |     |         int256 volIndex = data.volIndex.value;
+  29 |     | 
+  30 |     |         int256 implWti = _setPrice(data.wtiPrice, volIndex, s.wtiFeed); 
+  31 |     |         int256 implGold = _setPrice(data.goldPrice, volIndex, s.goldFeed);
+  32 |     |         int256 implEth = _setPrice(data.ethPrice, 0, s.ethFeed);
+  33 |     | 
+  34 |     |         int256 netDiff = implWti + implEth + implGold;
+  35 |     | 
+  36 |     |         return uint256(basePrice + ( (netDiff * basePrice) / (100 * EIGHT_DEC) ));
+  37 |     |     }
+  38 |     | 
+  39 |     |     //------------------
+  40 |     | 
+  41 |     |     function getNum() external pure returns(uint) {
+  42 |     |         return 3;
+  43 |     |     }
+  44 |     | 
+  45 |     | 
+  46 |     |     function _getDataFeeds() private view returns(Data memory data, int basePrice) {
+  47 |     |         (,int256 volatility,,,) = s.volatilityFeed.latestRoundData();
+  48 |     |         (uint80 wtiId, int256 wtiPrice,,,) = s.wtiFeed.latestRoundData();
+  49 |     |         (uint80 ethId, int256 ethPrice,,,) = s.ethFeed.latestRoundData();
+  50 |     |         (uint80 goldId, int256 goldPrice,,,) = s.goldFeed.latestRoundData();
+  51 |     | 
+  52 |     |         basePrice = _calculateBasePrice(ethPrice);
+  53 |     | 
+  54 |     |         data = Data({
+  55 |     |             volIndex: DataInfo({
+  56 |     |                 roundId: 0,
+  57 |     |                 value: volatility
+  58 |     |             }),
+  59 |     |             wtiPrice: DataInfo({
+  60 |     |                 roundId: wtiId,
+  61 |     |                 value: wtiPrice
+  62 |     |             }),
+  63 |     |             ethPrice: DataInfo({
+  64 |     |                 roundId: ethId,
+  65 |     |                 value: ethPrice
+  66 |     |             }),
+  67 |     |             goldPrice: DataInfo({
+  68 |     |                 roundId: goldId,
+  69 |     |                 value: goldPrice
+  70 |     |             })
+  71 |     |         });
+  72 |     |     }
+  73 |     | 
+  74 |     | 
+  75 |     |      function _getPrevFeed(
+  76 |     |         uint80 roundId_, 
+  77 |     |         AggregatorV3Interface feed_
+  78 |     |     ) private view returns(int256) {
+  79 |     |         (,int256 prevPrice,,,) = feed_.getRoundData(roundId_ - 1);
+  80 |     |         return prevPrice;
+  81 |     |     }
+  82 |     | 
+  83 |     |     function _setPrice(
+  84 |     |         DataInfo memory price_, 
+  85 |     |         int256 volIndex_, 
+  86 |     |         AggregatorV3Interface feed_
+  87 |     |     ) private view returns(int256) {
+  88 |     |         if (address(feed_) != address(s.ethFeed)) {
+  89 |     |             int256 currPrice = price_.value;
+  90 |     |             int256 netDiff = currPrice - _getPrevFeed(price_.roundId, feed_);
+  91 |     |             return ( (netDiff * 100 * EIGHT_DEC) / currPrice ) * (volIndex_ / NINETN_DEC);
+  92 |     |         } else {
+  93 |     |             int256 prevEthPrice = _getPrevFeed(price_.roundId, feed_);
+  94 |     |             int256 netDiff = price_.value - prevEthPrice;
+  95 |     |             return (netDiff * 100 * EIGHT_DEC) / prevEthPrice;
+  96 |     |         }
+  97 |     |     }
+  98 |     | 
+  99 |     |     function _calculateBasePrice(int256 ethPrice_) private pure returns(int256) {
+ 100 |     |         return ( (100 * EIGHT_DEC * ethPrice_) / 10 * EIGHT_DEC ) / BASE;
+ 101 |     |     }
+ 102 |     |     
+ 103 |     | 
+ 104 |     | }
+ 105 |     | 
+ 106 |     | 
+ 107 |     | 
+ 108 |     | 
+ 109 |     | 
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/testing-files/EthFeed.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | // import "forge-std/console.sol";
+  5 |     | 
+  6 |     | contract EthFeed {
+  7 |     | 
+  8 |     |     function latestRoundData() external view returns(int, int, int, int, int) {
+  9 |     |         uint blockNum = block.number;
+ 10 |     |         int result;
+ 11 |     | 
+ 12 |     |         assembly {
+ 13 |     |             switch blockNum 
+ 14 |     |             case 69254399 { result := 154700260000 } 
+ 15 |     |             case 69255699 { result := 158142799097 } 
+ 16 |     |             case 69260699 { result := 158956580000 } 
+ 17 |     |             case 69294699 { result := 161684899390 } 
+ 18 |     |             case 69295699 { result := 161691000000 } 
+ 19 |     |             case 69297699 { result := 161566898000 } 
+ 20 |     |             case 69380699 { result := 160800635124 } 
+ 21 |     |             case 69421699 { result := 158595420000 } 
+ 22 |     |         }
+ 23 |     | 
+ 24 |     |         return (1,result,0,0,0);
+ 25 |     |     }
+ 26 |     | 
+ 27 |     |     function getRoundData(uint80 roundId_) external view returns(int, int, int, int, int) {
+ 28 |     |         uint blockNum = block.number;
+ 29 |     |         int result = int(uint(roundId_) - uint(roundId_));
+ 30 |     | 
+ 31 |     |         assembly {
+ 32 |     |             switch blockNum 
+ 33 |     |             case 69254399 { result := 158142799097 }
+ 34 |     |             case 69255699 { result := 158956580000 }
+ 35 |     |             case 69260699 { result := 161684899390 }
+ 36 |     |             case 69294699 { result := 161691000000 }
+ 37 |     |             case 69295699 { result := 161566898000 }
+ 38 |     |             case 69297699 { result := 160800635124 }
+ 39 |     |             case 69380699 { result := 158595420000 }
+ 40 |     |             case 69421699 { result := 154700260000 }
+ 41 |     |         }
+ 42 |     | 
+ 43 |     |         return (0,result,0,0,0);
+ 44 |     |     }
+ 45 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/testing-files/GoldFeed.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | 
+  5 |     | contract GoldFeed {
+  6 |     | 
+  7 |     |     function latestRoundData() external view returns(int, int, int, int, int) {
+  8 |     |         uint blockNum = block.number;
+  9 |     |         int result;
+ 10 |     | 
+ 11 |     |         assembly {
+ 12 |     |             switch blockNum 
+ 13 |     |             case 69254399 { result := 188117000000 } 
+ 14 |     |             case 69255699 { result := 189157000000 } 
+ 15 |     |             case 69260699 { result := 189157000000 } 
+ 16 |     |             case 69294699 { result := 188161500000 } 
+ 17 |     |             case 69295699 { result := 188161500000 } 
+ 18 |     |             case 69297699 { result := 188161500000 } 
+ 19 |     |             case 69380699 { result := 187211000000 } 
+ 20 |     |             case 69421699 { result := 188220158450 } 
+ 21 |     |         }
+ 22 |     | 
+ 23 |     |         return (1,result,0,0,0);
+ 24 |     |     }
+ 25 |     | 
+ 26 |     |     function getRoundData(uint80 roundId_) external view returns(int, int, int, int, int) {
+ 27 |     |         uint blockNum = block.number;
+ 28 |     |         int result = int(uint(roundId_) - uint(roundId_));
+ 29 |     | 
+ 30 |     |         assembly {
+ 31 |     |             switch blockNum 
+ 32 |     |             case 69254399 { result := 188917000000 }
+ 33 |     |             case 69255699 { result := 190157000000 }
+ 34 |     |             case 69260699 { result := 186757000000 }
+ 35 |     |             case 69294699 { result := 187261500000 }
+ 36 |     |             case 69295699 { result := 191261500000 }
+ 37 |     |             case 69297699 { result := 187161500000 }
+ 38 |     |             case 69380699 { result := 186011000000 }
+ 39 |     |             case 69421699 { result := 185720158450 }
+ 40 |     |         }
+ 41 |     | 
+ 42 |     |         return (0,result,0,0,0);
+ 43 |     |     }
+ 44 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/contracts/testing-files/WtiFeed.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | // import 'hardhat/console.sol';
+  5 |     | 
+  6 |     | contract WtiFeed {
+  7 |     | 
+  8 |     |     function latestRoundData() external view returns(int, int, int, int, int) {
+  9 |     |         uint blockNum = block.number;
+ 10 |     |         int result;
+ 11 |     | 
+ 12 |     |         // console.log('myBlock: ', blockNum);
+ 13 |     | 
+ 14 |     |         assembly {
+ 15 |     |             switch blockNum 
+ 16 |     |             case 69254399 { result := 7632500000 } 
+ 17 |     |             case 69255699 { result := 7672000000 } 
+ 18 |     |             case 69260699 { result := 7717200000 } 
+ 19 |     |             case 69294699 { result := 7677600000 } 
+ 20 |     |             case 69295699 { result := 7704200000 } 
+ 21 |     |             case 69297699 { result := 7639200000 } 
+ 22 |     |             case 69380699 { result := 7674920000 } 
+ 23 |     |             case 69421699 { result := 7592500000 } 
+ 24 |     |         }
+ 25 |     | 
+ 26 |     |         return (1,result,0,0,0);
+ 27 |     |     }
+ 28 |     | 
+ 29 |     |     function getRoundData(uint80 roundId_) external view returns(int, int, int, int, int) {
+ 30 |     |         uint blockNum = block.number;
+ 31 |     |         int result = int(uint(roundId_) - uint(roundId_));
+ 32 |     | 
+ 33 |     |         assembly {
+ 34 |     |             switch blockNum 
+ 35 |     |             case 69254399 { result := 7672000000 }
+ 36 |     |             case 69255699 { result := 7717200000 }
+ 37 |     |             case 69260699 { result := 7677600000 }
+ 38 |     |             case 69294699 { result := 7704200000 }
+ 39 |     |             case 69295699 { result := 7639200000 }
+ 40 |     |             case 69297699 { result := 7674920000 }
+ 41 |     |             case 69380699 { result := 7592500000 }
+ 42 |     |             case 69421699 { result := 7632500000 }
+ 43 |     |         }
+ 44 |     | 
+ 45 |     |         return (0,result,0,0,0);
+ 46 |     |     }
+ 47 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/interfaces/IDiamondCut.sol
+  1 |     | // SPDX-License-Identifier: MIT
+  2 |     | pragma solidity ^0.8.0;
+  3 |     | 
+  4 |     | /******************************************************************************\
+  5 |     | * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
+  6 |     | * EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535
+  7 |     | /******************************************************************************/
+  8 |     | 
+  9 |     | interface IDiamondCut {
+ 10 |     |     enum FacetCutAction {Add, Replace, Remove}
+ 11 |     |     // Add=0, Replace=1, Remove=2
+ 12 |     | 
+ 13 |     |     struct FacetCut {
+ 14 |     |         address facetAddress;
+ 15 |     |         FacetCutAction action;
+ 16 |     |         bytes4[] functionSelectors;
+ 17 |     |     }
+ 18 |     | 
+ 19 |     |     /// @notice Add/replace/remove any number of functions and optionally execute
+ 20 |     |     ///         a function with delegatecall
+ 21 |     |     /// @param _diamondCut Contains the facet addresses and function selectors
+ 22 |     |     /// @param _init The address of the contract or facet to execute _calldata
+ 23 |     |     /// @param _calldata A function call, including function selector and arguments
+ 24 |     |     ///                  _calldata is executed with delegatecall on _init
+ 25 |     |     function diamondCut(
+ 26 |     |         FacetCut[] calldata _diamondCut,
+ 27 |     |         address _init,
+ 28 |     |         bytes calldata _calldata
+ 29 |     |     ) external;
+ 30 |     | 
+ 31 |     |     event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+ 32 |     | }
+ 33 |     | 
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/interfaces/ozIDiamond.sol
+  1 |     | pragma solidity 0.8.19;
+  2 |     | 
+  3 |     | 
+  4 |     | 
+  5 |     | 
+  6 |     | interface ozIDiamond {
+  7 |     | 
+  8 |     |     struct FacetCut {
+  9 |     |         address facetAddress;
+ 10 |     |         FacetCutAction action;
+ 11 |     |         bytes4[] functionSelectors;
+ 12 |     |     }
+ 13 |     | 
+ 14 |     |     enum FacetCutAction {Add, Replace, Remove}
+ 15 |     | 
+ 16 |     |     function diamondCut(FacetCut[] memory _diamondCut, address _init, bytes memory _calldata) external;
+ 17 |     |     function getLastPrice() external view returns(uint256);
+ 18 |     |     function getEnergyPrice() external view returns(uint256);
+ 19 |     |     function getOzelIndex() external view returns(uint256);
+ 20 |     | 
+ 21 |     | }
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/libraries/LibDiamond.sol
+   1 |     | // SPDX-License-Identifier: MIT
+   2 |     | pragma solidity ^0.8.0;
+   3 |     | 
+   4 |     | /******************************************************************************\
+   5 |     | * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
+   6 |     | * EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535
+   7 |     | /******************************************************************************/
+   8 |     | import { IDiamondCut } from "../interfaces/IDiamondCut.sol";
+   9 |     | import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+  10 |     | 
+  11 |     | 
+  12 |     | library LibDiamond {
+  13 |     |     bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+  14 |     | 
+  15 |     |     struct FacetAddressAndPosition {
+  16 |     |         address facetAddress;
+  17 |     |         uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array
+  18 |     |     }
+  19 |     | 
+  20 |     |     struct FacetFunctionSelectors {
+  21 |     |         bytes4[] functionSelectors;
+  22 |     |         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
+  23 |     |     }
+  24 |     | 
+  25 |     |     struct Facets {
+  26 |     |         bytes4[][] selectors;
+  27 |     |         address[] addresses;
+  28 |     |     }
+  29 |     | 
+  30 |     |     struct Token {
+  31 |     |         address l1Address;
+  32 |     |         address l2Address;
+  33 |     |     }
+  34 |     | 
+  35 |     |     struct VarsAndAddresses { 
+  36 |     |         address[] contracts;
+  37 |     |         address[] erc20s;
+  38 |     |         Token[] tokensDb;
+  39 |     |         address ETH;
+  40 |     |         uint[] appVars;
+  41 |     |         uint[] revenueAmounts;
+  42 |     |         string[] ozlVars;
+  43 |     |     }
+  44 |     | 
+  45 |     | 
+  46 |     |     struct DiamondStorage {
+  47 |     |         // maps function selector to the facet address and
+  48 |     |         // the position of the selector in the facetFunctionSelectors.selectors array
+  49 |     |         mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;
+  50 |     |         // // maps facet addresses to function selectors
+  51 |     |         mapping(address => FacetFunctionSelectors) facetFunctionSelectors;
+  52 |     |         // facet addresses
+  53 |     |         address[] facetAddresses;
+  54 |     |         // Used to query if a contract implements an interface.
+  55 |     |         // Used to implement ERC-165.
+  56 |     |         mapping(bytes4 => bool) supportedInterfaces;
+  57 |     |         // owner of the contract
+  58 |     |         address contractOwner; 
+  59 |     |         //facets that don't check revenue
+  60 |     |         address[] nonRevenueFacets;
+  61 |     |     }
+  62 |     | 
+  63 |     |     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
+  64 |     |         bytes32 position = DIAMOND_STORAGE_POSITION;
+  65 |     |         assembly {
+  66 |     |             ds.slot := position
+  67 |     |         }
+  68 |     |     }
+  69 |     | 
+  70 |     |     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+  71 |     | 
+  72 |     |     function setContractOwner(address _newOwner) internal {
+  73 |     |         DiamondStorage storage ds = diamondStorage();
+  74 |     |         address previousOwner = ds.contractOwner;
+  75 |     |         ds.contractOwner = _newOwner;
+  76 |     |         emit OwnershipTransferred(previousOwner, _newOwner);
+  77 |     |     }
+  78 |     | 
+  79 |     |     function contractOwner() internal view returns (address contractOwner_) {
+  80 |     |         contractOwner_ = diamondStorage().contractOwner;
+  81 |     |     }
+  82 |     | 
+  83 |     |     function enforceIsContractOwner() internal view {
+  84 |     |         require(msg.sender == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
+  85 |     |     }
+  86 |     | 
+  87 |     |     event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);
+  88 |     | 
+  89 |     |     // Internal function version of diamondCut
+  90 |     |     function diamondCut(
+  91 |     |         IDiamondCut.FacetCut[] memory _diamondCut,
+  92 |     |         address _init,
+  93 |     |         bytes memory _calldata
+  94 |     |     ) internal {
+  95 |     |         for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
+  96 |     |             IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
+  97 |     |             if (action == IDiamondCut.FacetCutAction.Add) {
+  98 |     |                 addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);
+  99 |     |             } else if (action == IDiamondCut.FacetCutAction.Replace) {
+ 100 |     |                 replaceFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);
+ 101 |     |             } else if (action == IDiamondCut.FacetCutAction.Remove) {
+ 102 |     |                 removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);
+ 103 |     |             } else {
+ 104 |     |                 revert("LibDiamondCut: Incorrect FacetCutAction");
+ 105 |     |             }
+ 106 |     |         }
+ 107 |     |         emit DiamondCut(_diamondCut, _init, _calldata);
+ 108 |     |         initializeDiamondCut(_init, _calldata);
+ 109 |     |     }
+ 110 |     | 
+ 111 |     |     function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
+ 112 |     |         require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+ 113 |     |         DiamondStorage storage ds = diamondStorage();        
+ 114 |     |         require(_facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
+ 115 |     |         uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);
+ 116 |     |         // add new facet address if it does not exist
+ 117 |     |         if (selectorPosition == 0) {
+ 118 |     |             addFacet(ds, _facetAddress);            
+ 119 |     |         }
+ 120 |     |         for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
+ 121 |     |             bytes4 selector = _functionSelectors[selectorIndex];
+ 122 |     |             address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
+ 123 |     |             require(oldFacetAddress == address(0), "LibDiamondCut: Can't add function that already exists");
+ 124 |     |             addFunction(ds, selector, selectorPosition, _facetAddress);
+ 125 |     |             selectorPosition++;
+ 126 |     |         }
+ 127 |     |     }
+ 128 |     | 
+ 129 |     |     function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
+ 130 |     |         require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+ 131 |     |         DiamondStorage storage ds = diamondStorage();
+ 132 |     |         require(_facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
+ 133 |     |         uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);
+ 134 |     |         // add new facet address if it does not exist
+ 135 |     |         if (selectorPosition == 0) {
+ 136 |     |             addFacet(ds, _facetAddress);
+ 137 |     |         }
+ 138 |     |         for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
+ 139 |     |             bytes4 selector = _functionSelectors[selectorIndex];
+ 140 |     |             address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
+ 141 |     |             require(oldFacetAddress != _facetAddress, "LibDiamondCut: Can't replace function with same function");
+ 142 |     |             removeFunction(ds, oldFacetAddress, selector);
+ 143 |     |             addFunction(ds, selector, selectorPosition, _facetAddress);
+ 144 |     |             selectorPosition++;
+ 145 |     |         }
+ 146 |     |     }
+ 147 |     | 
+ 148 |     |     function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
+ 149 |     |         require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+ 150 |     |         DiamondStorage storage ds = diamondStorage();
+ 151 |     |         // if function does not exist then do nothing and return
+ 152 |     |         require(_facetAddress == address(0), "LibDiamondCut: Remove facet address must be address(0)");
+ 153 |     |         for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {
+ 154 |     |             bytes4 selector = _functionSelectors[selectorIndex];
+ 155 |     |             address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
+ 156 |     |             removeFunction(ds, oldFacetAddress, selector);
+ 157 |     |         }
+ 158 |     |     }
+ 159 |     | 
+ 160 |     |     function addFacet(DiamondStorage storage ds, address _facetAddress) internal {
+ 161 |     |         enforceHasContractCode(_facetAddress, "LibDiamondCut: New facet has no code");
+ 162 |     |         ds.facetFunctionSelectors[_facetAddress].facetAddressPosition = ds.facetAddresses.length;
+ 163 |     |         ds.facetAddresses.push(_facetAddress);
+ 164 |     |     }    
+ 165 |     | 
+ 166 |     | 
+ 167 |     |     function addFunction(DiamondStorage storage ds, bytes4 _selector, uint96 _selectorPosition, address _facetAddress) internal {
+ 168 |     |         ds.selectorToFacetAndPosition[_selector].functionSelectorPosition = _selectorPosition;
+ 169 |     |         ds.facetFunctionSelectors[_facetAddress].functionSelectors.push(_selector);
+ 170 |     |         ds.selectorToFacetAndPosition[_selector].facetAddress = _facetAddress;
+ 171 |     |     }
+ 172 |     | 
+ 173 |     |     function removeFunction(DiamondStorage storage ds, address _facetAddress, bytes4 _selector) internal {        
+ 174 |     |         require(_facetAddress != address(0), "LibDiamondCut: Can't remove function that doesn't exist");
+ 175 |     |         // an immutable function is a function defined directly in a diamond
+ 176 |     |         require(_facetAddress != address(this), "LibDiamondCut: Can't remove immutable function");
+ 177 |     |         // replace selector with last selector, then delete last selector
+ 178 |     |         uint256 selectorPosition = ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;
+ 179 |     |         uint256 lastSelectorPosition = ds.facetFunctionSelectors[_facetAddress].functionSelectors.length - 1;
+ 180 |     |         // if not the same then replace _selector with lastSelector
+ 181 |     |         if (selectorPosition != lastSelectorPosition) {
+ 182 |     |             bytes4 lastSelector = ds.facetFunctionSelectors[_facetAddress].functionSelectors[lastSelectorPosition];
+ 183 |     |             ds.facetFunctionSelectors[_facetAddress].functionSelectors[selectorPosition] = lastSelector;
+ 184 |     |             ds.selectorToFacetAndPosition[lastSelector].functionSelectorPosition = uint96(selectorPosition);
+ 185 |     |         }
+ 186 |     |         // delete the last selector
+ 187 |     |         ds.facetFunctionSelectors[_facetAddress].functionSelectors.pop();
+ 188 |     |         delete ds.selectorToFacetAndPosition[_selector];
+ 189 |     | 
+ 190 |     |         // if no more selectors for facet address then delete the facet address
+ 191 |     |         if (lastSelectorPosition == 0) {
+ 192 |     |             // replace facet address with last facet address and delete last facet address
+ 193 |     |             uint256 lastFacetAddressPosition = ds.facetAddresses.length - 1;
+ 194 |     |             uint256 facetAddressPosition = ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;
+ 195 |     |             if (facetAddressPosition != lastFacetAddressPosition) {
+ 196 |     |                 address lastFacetAddress = ds.facetAddresses[lastFacetAddressPosition];
+ 197 |     |                 ds.facetAddresses[facetAddressPosition] = lastFacetAddress;
+ 198 |     |                 ds.facetFunctionSelectors[lastFacetAddress].facetAddressPosition = facetAddressPosition;
+ 199 |     |             }
+ 200 |     |             ds.facetAddresses.pop();
+ 201 |     |             delete ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;
+ 202 |     |         }
+ 203 |     |     }
+ 204 |     | 
+ 205 |     |     function initializeDiamondCut(address _init, bytes memory _calldata) internal {
+ 206 |     |         if (_init == address(0)) {
+ 207 |     |             require(_calldata.length == 0, "LibDiamondCut: _init is address(0) but_calldata is not empty");
+ 208 |     |         } else {
+ 209 |     |             require(_calldata.length > 0, "LibDiamondCut: _calldata is empty but _init is not address(0)");
+ 210 |     |             if (_init != address(this)) {
+ 211 |     |                 enforceHasContractCode(_init, "LibDiamondCut: _init address has no code");
+ 212 |     |             }
+ 213 |     |             (bool success, bytes memory error) = _init.delegatecall(_calldata);
+ 214 |     |             if (!success) {
+ 215 |     |                 if (error.length > 0) {
+ 216 |     |                     // bubble up the error
+ 217 |     |                     revert(string(error));
+ 218 |     |                 } else {
+ 219 |     |                     revert("LibDiamondCut: _init function reverted");
+ 220 |     |                 }
+ 221 |     |             }
+ 222 |     |         }
+ 223 |     |     }
+ 224 |     | 
+ 225 |     |     function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {
+ 226 |     |         uint256 contractSize;
+ 227 |     |         assembly {
+ 228 |     |             contractSize := extcodesize(_contract)
+ 229 |     |         }
+ 230 |     |         require(contractSize > 0, _errorMessage);
+ 231 |     |     }
+ 232 |     | 
+ 233 |     |     /*///////////////////////////////////////////////////////////////
+ 234 |     |                                Custom methods
+ 235 |     |     //////////////////////////////////////////////////////////////*/
+ 236 |     | 
+ 237 |     |     /**
+ 238 |     |      * @dev Determines which facet to call depending on the selector
+ 239 |     |      * @param data_ Calldata of function to call
+ 240 |     |      * @return bytes Return data
+ 241 |     |      */
+ 242 |     |     function callFacet(bytes memory data_) internal returns(bytes memory) {
+ 243 |     |         DiamondStorage storage ds = diamondStorage();
+ 244 |     |         address facet = ds.selectorToFacetAndPosition[bytes4(data_)].facetAddress;
+ 245 |     |         (bool success, bytes memory data) = facet.delegatecall(data_);
+ 246 |     |         require(success, 'LibDiamond: callFacet() failed');
+ 247 |     |         return data;
+ 248 |     |     }
+ 249 |     | 
+ 250 |     |     /**
+ 251 |     |      * @dev Sets the facets that don't call for a revenue check (the owner's)
+ 252 |     |      * @param nonRevenueFacets_ Facets that don't call for revenue check
+ 253 |     |      */
+ 254 |     |     function setNonRevenueFacets(address[] memory nonRevenueFacets_) internal {
+ 255 |     |         DiamondStorage storage ds = diamondStorage();
+ 256 |     |         uint length = nonRevenueFacets_.length;
+ 257 |     |         for (uint i=0; i < length;) {
+ 258 |     |             ds.nonRevenueFacets.push(nonRevenueFacets_[i]);
+ 259 |     |             unchecked { ++i; }
+ 260 |     |         }
+ 261 |     |     }
+ 262 |     | }
+ 263 |     | 
+
+/Users/cdgmachado/Documents/Chainshot/myDapps/ozel-v2/test/echidna/EchidnaE2E.sol
+  1 |     | // SPDX-License-Identifier: GPL-2.0-or-later
+  2 |     | pragma solidity 0.8.19;
+  3 |     | 
+  4 |     | 
+  5 |     | import '../../interfaces/ozIDiamond.sol';
+  6 |     | import '../../contracts/testing-files/WtiFeed.sol';
+  7 |     | import '../../contracts/testing-files/EthFeed.sol';
+  8 |     | import '../../contracts/testing-files/GoldFeed.sol';
+  9 |     | import '../../contracts/facets/ozOracleFacet.sol';
+ 10 |     | import '../../contracts/InitUpgradeV2.sol';
+ 11 |     | 
+ 12 | *r  | 
+ 13 |     | contract EchidnaE2E {
+ 14 |     | 
+ 15 |     |     ozIDiamond OZL;
+ 16 |     | 
+ 17 |     |     WtiFeed private wtiFeed;
+ 18 |     |     EthFeed private ethFeed;
+ 19 |     |     GoldFeed private goldFeed;
+ 20 |     | 
+ 21 |     |     ozOracleFacet private ozOracle;
+ 22 |     |     InitUpgradeV2 private initUpgrade;
+ 23 |     | 
+ 24 |     |     address private volIndex = 0xbcD8bEA7831f392bb019ef3a672CC15866004536;
+ 25 |     |     
+ 26 |     |     constructor() {
+ 27 |     |         OZL = ozIDiamond(0x7D1f13Dd05E6b0673DC3D0BFa14d40A74Cfa3EF2);
+ 28 |     | 
+ 29 |     |         ethFeed = new EthFeed();
+ 30 |     |         goldFeed = new GoldFeed();
+ 31 |     |         wtiFeed = new WtiFeed();
+ 32 |     | 
+ 33 |     |         ozOracle = new ozOracleFacet(); 
+ 34 |     | 
+ 35 |     |         address[] memory facets = new address[](1);
+ 36 |     |         facets[0] = address(ozOracle);
+ 37 |     | 
+ 38 |     |         address[] memory feeds = new address[](4);
+ 39 |     |         feeds[0] = address(wtiFeed);
+ 40 |     |         feeds[1] = volIndex;
+ 41 |     |         feeds[2] = address(ethFeed);
+ 42 |     |         feeds[3] = address(goldFeed); 
+ 43 |     | 
+ 44 |     |         initUpgrade = new InitUpgradeV2();
+ 45 |     | 
+ 46 |     |         bytes memory data = abi.encodeWithSelector(
+ 47 |     |             initUpgrade.init.selector,
+ 48 |     |             feeds,
+ 49 |     |             facets
+ 50 |     |         );
+ 51 |     | 
+ 52 |     |         bytes4[] memory selecOracle = new bytes4[](1);
+ 53 |     |         selecOracle[0] = bytes4(ozOracle.getLastPrice.selector);
+ 54 |     | 
+ 55 |     |         ozIDiamond.FacetCut memory cut = ozIDiamond.FacetCut({
+ 56 |     |             facetAddress: address(ozOracle),
+ 57 |     |             action: ozIDiamond.FacetCutAction.Add,
+ 58 |     |             functionSelectors: selecOracle
+ 59 |     |         });
+ 60 |     | 
+ 61 |     |         // ozIDiamond.FacetCut[] memory cuts = new ozIDiamond.FacetCut[](2);
+ 62 |     |         // cuts[0] = cut;
+ 63 |     | 
+ 64 |     |         // OZL.diamondCut(cuts, address(initUpgrade), data);
+ 65 |     |     }
+ 66 |     | 
+ 67 |     | 
+ 68 |     |     // function get_price() public view  {
+ 69 |     |     //     uint256 price = OZL.getLastPrice();
+ 70 |     |     //     // uint256 price = OZL.getOzelIndex();
+ 71 |     | 
+ 72 |     |     //     // bytes memory data = abi.encodeWithSig
+ 73 |     |     //     // (bool success,) = address(OZL).call();
+ 74 |     | 
+ 75 |     |     //     assert(price > 0);
+ 76 |     |     // }
+ 77 |     | 
+ 78 |     |     // function get_round_data() public view  {
+ 79 |     |     //     (, int price,,,) = wtiFeed.latestRoundData();
+ 80 |     |     //     assert(price > 0);
+ 81 |     |     // }
+ 82 |     | 
+ 83 | *   |     function getHello() public pure {
+ 84 | *   |         assert(true);
+ 85 |     |     }
+ 86 |     | 
+ 87 |     | }
+

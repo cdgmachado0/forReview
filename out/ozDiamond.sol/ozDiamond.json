@@ -1,0 +1,20 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "contracts/ozDiamond.sol",
+    "id": 694,
+    "exportedSymbols": {},
+    "nodeType": "SourceUnit",
+    "src": "425:0:4",
+    "nodes": []
+  },
+  "id": 4
+}
